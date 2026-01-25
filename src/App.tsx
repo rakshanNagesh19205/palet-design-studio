@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 // Pages
 import Landing from "./pages/Landing";
@@ -20,36 +21,38 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          {/* Marketing */}
-          <Route path="/" element={<Landing />} />
-          <Route path="/about" element={<About />} />
-          
-          {/* Authentication */}
-          <Route path="/auth/signin" element={<SignIn />} />
-          <Route path="/auth/signup" element={<SignUp />} />
-          <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-          
-          {/* Create Flow */}
-          <Route path="/create/template" element={<TemplateSelection />} />
-          <Route path="/create/style" element={<StyleSelection />} />
-          
-          {/* Studio */}
-          <Route path="/studio" element={<Studio />} />
-          <Route path="/studio/:projectId" element={<Studio />} />
-          
-          {/* Dashboard */}
-          <Route path="/dashboard" element={<Dashboard />} />
-          
-          {/* Catch-all */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* Marketing */}
+            <Route path="/" element={<Landing />} />
+            <Route path="/about" element={<About />} />
+            
+            {/* Authentication */}
+            <Route path="/auth/signin" element={<SignIn />} />
+            <Route path="/auth/signup" element={<SignUp />} />
+            <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+            
+            {/* Create Flow */}
+            <Route path="/create/template" element={<TemplateSelection />} />
+            <Route path="/create/style" element={<StyleSelection />} />
+            
+            {/* Studio */}
+            <Route path="/studio" element={<Studio />} />
+            <Route path="/studio/:projectId" element={<Studio />} />
+            
+            {/* Dashboard */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            
+            {/* Catch-all */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
