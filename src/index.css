@@ -82,6 +82,9 @@
     --chrome-dot-red: 0 84% 60%;
     --chrome-dot-yellow: 38 92% 50%;
     --chrome-dot-green: 142 71% 45%;
+    
+    /* Landing page specific */
+    --landing-bg: 0 22% 10%;
   }
 
   .dark {
@@ -174,6 +177,23 @@
 }
 
 /* Material Symbols configuration */
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+  transition: transform 0.2s ease-out, color 0.2s ease-out;
+}
+
+.material-symbols-outlined.filled {
+  font-variation-settings:
+    'FILL' 1,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
 .material-symbols-rounded {
   font-variation-settings:
     'FILL' 0,
@@ -221,28 +241,186 @@ html {
   background-color: hsl(var(--muted-foreground) / 0.3);
 }
 
-/* Selection animation */
+/* ===========================================
+   Card Hover Effects
+   =========================================== */
+
+/* Project cards */
+.project-card {
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out;
+}
+.project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+/* Template cards */
+.template-card {
+  transition: all 0.2s ease;
+}
+.template-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+}
+.template-card.selected {
+  border: 2px solid hsl(var(--primary));
+  box-shadow: 0 0 0 4px hsl(var(--primary) / 0.1), 0 12px 24px hsl(var(--primary) / 0.1);
+}
+
+/* Style cards */
+.style-card {
+  transition: all 0.2s ease-out;
+}
+.style-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12);
+}
 .style-card.selected {
   animation: select-pulse 0.3s ease-out;
 }
 
+/* ===========================================
+   Selection Animation
+   =========================================== */
 @keyframes select-pulse {
   0% { transform: scale(1); }
   50% { transform: scale(0.98); }
   100% { transform: scale(1); }
 }
 
-/* Accordion transition */
+/* ===========================================
+   Dropdown Animation
+   =========================================== */
+.dropdown-menu {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+}
+.dropdown-menu.open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* ===========================================
+   Accordion Animation
+   =========================================== */
 .accordion-content-animated {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 0.25s ease-out;
+  transition: grid-template-rows 0.25s ease-out, opacity 0.2s ease-out;
+  opacity: 0;
 }
-
-.accordion-content-animated.expanded {
-  grid-template-rows: 1fr;
-}
-
 .accordion-content-animated > div {
   overflow: hidden;
+}
+.accordion-content-animated.expanded {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+/* ===========================================
+   Grid Patterns
+   =========================================== */
+.bg-grid-pattern {
+  background-size: 20px 20px;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+}
+
+.bg-grid-dark {
+  background-size: 24px 24px;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+
+.bg-grid-light {
+  background-size: 24px 24px;
+  background-image: linear-gradient(to right, #e5e7eb 1px, transparent 1px),
+                    linear-gradient(to bottom, #e5e7eb 1px, transparent 1px);
+}
+
+/* ===========================================
+   Style Preview Effects
+   =========================================== */
+
+/* Brutalist shadow */
+.brutalist-shadow {
+  box-shadow: 4px 4px 0px 0px #000;
+}
+
+/* Editorial line pattern */
+.editorial-lines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 11px,
+    rgba(0,0,0,0.03) 11px,
+    rgba(0,0,0,0.03) 12px
+  );
+}
+
+/* Playful blob shape */
+.playful-blob {
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+
+/* Elegant gradient */
+.elegant-gradient {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+}
+
+/* Bold gradient mesh */
+.bold-mesh {
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(255, 107, 0, 0.6) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 0, 80, 0.6) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(120, 0, 255, 0.4) 0%, transparent 60%),
+    #0a0a0a;
+}
+
+/* ===========================================
+   Staggered Entrance Animation
+   =========================================== */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) rotate(var(--rotate, 0deg));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(var(--rotate, 0deg));
+  }
+}
+
+.card-animate {
+  animation: fadeSlideIn 0.6s ease-out forwards;
+  opacity: 0;
+}
+.card-animate:nth-child(1) { animation-delay: 0.1s; }
+.card-animate:nth-child(2) { animation-delay: 0.2s; }
+.card-animate:nth-child(3) { animation-delay: 0.3s; }
+.card-animate:nth-child(4) { animation-delay: 0.4s; }
+.card-animate:nth-child(5) { animation-delay: 0.5s; }
+.card-animate:nth-child(6) { animation-delay: 0.6s; }
+
+/* ===========================================
+   Option Selection Animation
+   =========================================== */
+@keyframes selectPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.option-selected {
+  animation: selectPulse 0.3s ease-out;
+}
+
+/* ===========================================
+   Preview Transitions
+   =========================================== */
+.preview-transition {
+  transition: all 0.3s ease-out;
 }
