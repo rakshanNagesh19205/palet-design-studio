@@ -7,10 +7,13 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { History, Bookmark, Download, Check, Loader2, ChevronDown, Monitor, Tablet, Smartphone, ZoomIn, Moon, Sun } from 'lucide-react';
+import { TemplatePreview } from '@/components/studio/previews/TemplatePreview';
+import { getTemplatePages, PageType } from '@/lib/templatePages';
+import { getStylePreset, applyStyleToConfig } from '@/lib/stylePresets';
 
 const defaultConfig: ProjectConfig = {
   colors: { primary: 'hsl(356, 81%, 54%)', accent: 'hsl(173, 80%, 40%)' },
-  typography: { fontFamily: 'Public Sans', scale: 'default' },
+  typography: { fontFamily: 'Inter', scale: 'default' },
   spacing: { scale: 'default' },
   borders: { radius: 'md' },
   shadows: { intensity: 'medium' },
@@ -70,24 +73,34 @@ const Studio = () => {
   const [openSection, setOpenSection] = useState<string>('colors');
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [previewDark, setPreviewDark] = useState(false);
+  const [currentPage, setCurrentPage] = useState<PageType>('home');
   
   const { isSaving, lastSaved, saveNow } = useAutoSave(projectId, config);
 
+  // Apply style preset when project loads
   useEffect(() => {
-    if (project?.config) {
-      setConfig({
+    if (project) {
+      // Get the style preset and apply it to the config
+      const stylePreset = getStylePreset(project.style);
+      const baseConfig = project.config || {};
+      
+      // Merge: default -> style preset -> saved config
+      const mergedConfig: ProjectConfig = {
         ...defaultConfig,
-        ...project.config,
-        colors: { ...defaultConfig.colors, ...project.config.colors },
-        typography: { ...defaultConfig.typography, ...project.config.typography },
-        spacing: { ...defaultConfig.spacing, ...project.config.spacing },
-        borders: { ...defaultConfig.borders, ...project.config.borders },
-        shadows: { ...defaultConfig.shadows, ...project.config.shadows },
-        layout: { ...defaultConfig.layout, ...project.config.layout },
-        components: { ...defaultConfig.components, ...project.config.components },
-        icons: { ...defaultConfig.icons, ...project.config.icons },
-        motion: { ...defaultConfig.motion, ...project.config.motion },
-      });
+        ...stylePreset.config,
+        ...baseConfig,
+        colors: { ...defaultConfig.colors, ...stylePreset.config?.colors, ...baseConfig.colors },
+        typography: { ...defaultConfig.typography, ...stylePreset.config?.typography, ...baseConfig.typography },
+        spacing: { ...defaultConfig.spacing, ...stylePreset.config?.spacing, ...baseConfig.spacing },
+        borders: { ...defaultConfig.borders, ...stylePreset.config?.borders, ...baseConfig.borders },
+        shadows: { ...defaultConfig.shadows, ...stylePreset.config?.shadows, ...baseConfig.shadows },
+        layout: { ...defaultConfig.layout, ...stylePreset.config?.layout, ...baseConfig.layout },
+        components: { ...defaultConfig.components, ...baseConfig.components },
+        icons: { ...defaultConfig.icons, ...baseConfig.icons },
+        motion: { ...defaultConfig.motion, ...baseConfig.motion },
+      };
+      
+      setConfig(mergedConfig);
     }
   }, [project]);
 
@@ -98,6 +111,9 @@ const Studio = () => {
   const toggleSection = (sectionId: string) => {
     setOpenSection(openSection === sectionId ? '' : sectionId);
   };
+
+  // Get pages for the current template
+  const pages = getTemplatePages(project?.template);
 
   if (isLoading) {
     return (
@@ -347,25 +363,46 @@ const Studio = () => {
         <main className="flex-1 flex flex-col bg-[#1a1215]">
           {/* Preview Controls */}
           <div className="shrink-0 border-b border-white/10 bg-black/20 px-4 py-2 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setPreviewDevice('desktop')}
-                className={cn('p-1.5 rounded', previewDevice === 'desktop' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white')}
-              >
-                <Monitor className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setPreviewDevice('tablet')}
-                className={cn('p-1.5 rounded', previewDevice === 'tablet' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white')}
-              >
-                <Tablet className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setPreviewDevice('mobile')}
-                className={cn('p-1.5 rounded', previewDevice === 'mobile' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white')}
-              >
-                <Smartphone className="h-4 w-4" />
-              </button>
+            <div className="flex items-center gap-4">
+              {/* Device toggles */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPreviewDevice('desktop')}
+                  className={cn('p-1.5 rounded', previewDevice === 'desktop' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white')}
+                >
+                  <Monitor className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setPreviewDevice('tablet')}
+                  className={cn('p-1.5 rounded', previewDevice === 'tablet' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white')}
+                >
+                  <Tablet className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setPreviewDevice('mobile')}
+                  className={cn('p-1.5 rounded', previewDevice === 'mobile' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white')}
+                >
+                  <Smartphone className="h-4 w-4" />
+                </button>
+              </div>
+              
+              {/* Page navigation */}
+              <div className="flex items-center gap-1 border-l border-white/10 pl-4">
+                {pages.map((page) => (
+                  <button
+                    key={page.id}
+                    onClick={() => setCurrentPage(page.id)}
+                    className={cn(
+                      'px-3 py-1 text-xs rounded transition-colors',
+                      currentPage === page.id 
+                        ? 'bg-white/10 text-white' 
+                        : 'text-white/50 hover:text-white hover:bg-white/5'
+                    )}
+                  >
+                    {page.name}
+                  </button>
+                ))}
+              </div>
             </div>
             
             <div className="flex items-center gap-2">
@@ -382,15 +419,15 @@ const Studio = () => {
           </div>
           
           {/* Preview Area */}
-          <div className="flex-1 p-8 flex items-center justify-center">
+          <div className="flex-1 p-8 flex items-center justify-center overflow-hidden">
             <div className={cn(
-              'bg-white rounded-xl shadow-2xl overflow-hidden transition-all duration-300',
+              'bg-white rounded-xl shadow-2xl overflow-hidden transition-all duration-300 flex flex-col',
               previewDevice === 'desktop' && 'w-full max-w-4xl h-full',
               previewDevice === 'tablet' && 'w-[768px] h-full',
               previewDevice === 'mobile' && 'w-[375px] h-full'
             )}>
               {/* Browser Chrome */}
-              <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 flex items-center gap-3">
+              <div className="shrink-0 bg-gray-100 px-4 py-2 border-b border-gray-200 flex items-center gap-3">
                 <div className="flex gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-red-400" />
                   <div className="w-3 h-3 rounded-full bg-yellow-400" />
@@ -398,60 +435,27 @@ const Studio = () => {
                 </div>
                 <div className="flex-1 flex justify-center">
                   <div className="bg-white border border-gray-200 rounded px-3 py-1 text-xs text-muted-foreground">
-                    localhost:3000/preview
+                    localhost:3000/{currentPage}
                   </div>
                 </div>
               </div>
               
               {/* Preview Content */}
-              <div className={cn('h-[calc(100%-42px)] overflow-auto', previewDark && 'bg-slate-900')}>
-                <div className="p-8" style={{ fontFamily: config.typography?.fontFamily }}>
-                  {/* Sample Restaurant Preview */}
-                  <div className="max-w-lg mx-auto">
-                    <div className="text-center mb-8">
-                      <p className="text-xs uppercase tracking-widest mb-2" style={{ color: config.colors?.accent }}>
-                        EST. 2024
-                      </p>
-                      <h1 className={cn('text-3xl font-serif font-semibold mb-2', previewDark ? 'text-white' : 'text-slate-900')}>
-                        La Maison
-                      </h1>
-                      <p className={previewDark ? 'text-gray-400' : 'text-muted-foreground'}>
-                        French fine dining in the heart of the city
-                      </p>
-                    </div>
-                    
-                    <div 
-                      className="p-6 mb-6 border"
-                      style={{ 
-                        backgroundColor: previewDark ? 'rgba(255,255,255,0.05)' : '#fafafa',
-                        borderColor: previewDark ? 'rgba(255,255,255,0.1)' : '#e5e7eb',
-                        borderRadius: (config.borders?.radius as string) === 'lg' ? '12px' : (config.borders?.radius as string) === 'full' ? '24px' : (config.borders?.radius as string) === 'none' ? '0' : '8px',
-                        boxShadow: (config.shadows?.intensity as string) === 'dramatic' ? '0 20px 40px rgba(0,0,0,0.15)' : (config.shadows?.intensity as string) === 'medium' ? '0 4px 12px rgba(0,0,0,0.1)' : (config.shadows?.intensity as string) === 'subtle' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
-                      }}
-                    >
-                      <h3 className={cn('font-medium mb-2', previewDark ? 'text-white' : 'text-slate-900')}>Reserve a Table</h3>
-                      <p className={cn('text-sm mb-4', previewDark ? 'text-gray-400' : 'text-muted-foreground')}>
-                        Experience our seasonal tasting menu
-                      </p>
-                      <button 
-                        className="px-4 py-2 text-white text-sm font-medium"
-                        style={{ 
-                          backgroundColor: config.colors?.accent,
-                          borderRadius: (config.borders?.radius as string) === 'lg' ? '8px' : (config.borders?.radius as string) === 'full' ? '9999px' : (config.borders?.radius as string) === 'none' ? '0' : '6px'
-                        }}
-                      >
-                        Book Now
-                      </button>
-                    </div>
-                  </div>
-                </div>
+              <div className="flex-1 overflow-auto">
+                <TemplatePreview
+                  templateId={project.template}
+                  styleId={project.style}
+                  page={currentPage}
+                  config={config}
+                  darkMode={previewDark}
+                />
               </div>
             </div>
           </div>
           
           {/* Footer hint */}
           <div className="shrink-0 border-t border-white/10 bg-black/20 px-4 py-2 text-center text-xs text-white/40">
-            Use arrow keys to navigate preview · Space to toggle grid
+            Click page tabs above to navigate · Changes auto-save
           </div>
         </main>
       </div>
