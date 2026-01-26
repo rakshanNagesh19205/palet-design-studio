@@ -12,7 +12,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -24,15 +23,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, MoreVertical, Pencil, Trash2, FolderOpen, LogOut } from 'lucide-react';
+import { Logo } from '@/components/layout/Logo';
+import { ProjectCard } from '@/components/dashboard/ProjectCard';
+import { Plus, Search, LayoutGrid, List, FolderOpen, LogOut, Settings } from 'lucide-react';
 import { Project } from '@/types/database';
+import { cn } from '@/lib/utils';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -42,6 +38,8 @@ const Dashboard = () => {
   const createProject = useCreateProject();
   const deleteProject = useDeleteProject();
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -72,7 +70,7 @@ const Dashboard = () => {
         title: 'Project created',
         description: `"${project.name}" has been created successfully.`,
       });
-      navigate(`/studio/${project.id}`);
+      navigate(`/create/template?project=${project.id}`);
     } catch (err) {
       toast({
         title: 'Error',
@@ -108,29 +106,35 @@ const Dashboard = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  };
+  const filteredProjects = projects?.filter((p) =>
+    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="font-mono text-lg font-semibold tracking-tight">
-            Palet
-          </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              {getDisplayName(user?.email)}
-            </span>
+          <div className="flex items-center gap-8">
+            <Logo />
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Button
+              size="sm"
+              className="gap-2"
+              onClick={() => setCreateDialogOpen(true)}
+            >
+              <Plus className="h-4 w-4" />
+              New Project
+            </Button>
+            
+            <Button variant="ghost" size="icon" className="h-9 w-9">
+              <Settings className="h-4 w-4" />
+            </Button>
+            
             <Button variant="ghost" size="sm" onClick={handleSignOut}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign out
+              <LogOut className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -138,48 +142,45 @@ const Dashboard = () => {
 
       {/* Main content */}
       <main className="container py-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Your Projects</h1>
-            <p className="mt-1 text-muted-foreground">
-              Manage and continue working on your design systems
-            </p>
+        <div className="mb-8">
+          <h1 className="text-display-sm font-bold tracking-tight">Your Projects</h1>
+          <p className="mt-1 text-body-md text-muted-foreground">
+            Saved design specifications ready to export.
+          </p>
+        </div>
+        
+        {/* Toolbar */}
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search projects..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
           </div>
-          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                New Project
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create new project</DialogTitle>
-                <DialogDescription>
-                  Give your design system a name to get started.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="py-4">
-                <Label htmlFor="projectName">Project name</Label>
-                <Input
-                  id="projectName"
-                  placeholder="My Design System"
-                  value={newProjectName}
-                  onChange={(e) => setNewProjectName(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleCreateProject()}
-                  className="mt-2"
-                />
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleCreateProject} disabled={createProject.isPending}>
-                  {createProject.isPending ? 'Creating...' : 'Create Project'}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          
+          <div className="flex rounded-lg border border-border p-1">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={cn(
+                'rounded-md p-1.5 transition-colors',
+                viewMode === 'grid' ? 'bg-muted' : 'hover:bg-muted/50'
+              )}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={cn(
+                'rounded-md p-1.5 transition-colors',
+                viewMode === 'list' ? 'bg-muted' : 'hover:bg-muted/50'
+              )}
+            >
+              <List className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         {/* Loading state */}
@@ -197,75 +198,76 @@ const Dashboard = () => {
         )}
 
         {/* Empty state */}
-        {!isLoading && !error && projects?.length === 0 && (
+        {!isLoading && !error && filteredProjects?.length === 0 && (
           <div className="rounded-lg border border-dashed border-border bg-card p-12 text-center">
             <FolderOpen className="mx-auto h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">No projects yet</h3>
+            <h3 className="mt-4 text-lg font-medium">
+              {searchQuery ? 'No matching projects' : 'No projects yet'}
+            </h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Create your first design system to get started.
+              {searchQuery
+                ? 'Try adjusting your search query.'
+                : 'Create your first design system to get started.'}
             </p>
-            <Button className="mt-6" onClick={() => setCreateDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Create your first project
-            </Button>
+            {!searchQuery && (
+              <Button className="mt-6" onClick={() => setCreateDialogOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create your first project
+              </Button>
+            )}
           </div>
         )}
 
         {/* Projects grid */}
-        {!isLoading && !error && projects && projects.length > 0 && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project) => (
-              <div
+        {!isLoading && !error && filteredProjects && filteredProjects.length > 0 && (
+          <div className={cn(
+            'grid gap-6',
+            viewMode === 'grid' 
+              ? 'sm:grid-cols-2 lg:grid-cols-3' 
+              : 'grid-cols-1'
+          )}>
+            {filteredProjects.map((project) => (
+              <ProjectCard
                 key={project.id}
-                className="group relative rounded-lg border border-border bg-card p-6 transition-shadow hover:shadow-md"
-              >
-                <div className="flex items-start justify-between">
-                  <Link
-                    to={`/studio/${project.id}`}
-                    className="flex-1"
-                  >
-                    <h3 className="font-semibold group-hover:text-primary transition-colors">
-                      {project.name}
-                    </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Updated {formatDate(project.updated_at)}
-                    </p>
-                    {project.template && (
-                      <span className="mt-3 inline-block rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
-                        {project.template}
-                      </span>
-                    )}
-                  </Link>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-popover">
-                      <DropdownMenuItem onClick={() => navigate(`/studio/${project.id}`)}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleDeleteClick(project)}
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
+                project={project}
+                onEdit={() => navigate(`/studio/${project.id}`)}
+                onDelete={() => handleDeleteClick(project)}
+              />
             ))}
           </div>
         )}
       </main>
+
+      {/* Create dialog */}
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create new project</DialogTitle>
+            <DialogDescription>
+              Give your design system a name to get started.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="projectName">Project name</Label>
+            <Input
+              id="projectName"
+              placeholder="My Design System"
+              value={newProjectName}
+              onChange={(e) => setNewProjectName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleCreateProject()}
+              className="mt-2"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateProject} disabled={createProject.isPending}>
+              {createProject.isPending ? 'Creating...' : 'Create Project'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete confirmation dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

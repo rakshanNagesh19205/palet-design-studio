@@ -6,6 +6,7 @@ import { ProjectConfig } from '@/types/database';
 import { Accordion } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Logo } from '@/components/layout/Logo';
 import { PreviewPanel } from '@/components/studio/PreviewPanel';
 import { ColorsSection } from '@/components/studio/sections/ColorsSection';
 import { TypographySection } from '@/components/studio/sections/TypographySection';
@@ -16,7 +17,7 @@ import { LayoutSection } from '@/components/studio/sections/LayoutSection';
 import { ComponentsSection } from '@/components/studio/sections/ComponentsSection';
 import { IconsSection } from '@/components/studio/sections/IconsSection';
 import { MotionSection } from '@/components/studio/sections/MotionSection';
-import { ArrowLeft, Save, Download, Loader2 } from 'lucide-react';
+import { History, Bookmark, Download, Check, Loader2, Settings } from 'lucide-react';
 
 const defaultConfig: ProjectConfig = {
   colors: { primary: 'hsl(356, 81%, 54%)' },
@@ -86,124 +87,144 @@ const Studio = () => {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Left Panel - Configuration */}
-      <aside className="flex w-[400px] flex-col border-r border-studio-border bg-studio-panel">
-        {/* Header */}
-        <div className="flex h-14 items-center justify-between border-b border-studio-border px-4">
-          <div className="flex items-center gap-3">
-            <Link
-              to="/dashboard"
-              className="rounded-md p-1.5 hover:bg-accent transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-            <div className="flex flex-col">
-              <span className="font-semibold text-body-sm truncate max-w-[200px]">
-                {project.name}
-              </span>
-              <span className="text-caption text-muted-foreground">
-                {isSaving ? 'Saving...' : lastSaved ? `Saved ${formatTime(lastSaved)}` : 'Not saved yet'}
-              </span>
-            </div>
-          </div>
-          <Button size="sm" variant="ghost" onClick={saveNow} disabled={isSaving}>
-            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          </Button>
-        </div>
-
-        {/* Accordion sections */}
-        <ScrollArea className="flex-1">
-          <Accordion
-            type="single"
-            collapsible
-            value={openSection}
-            onValueChange={setOpenSection}
-          >
-            <ColorsSection
-              colors={config.colors || {}}
-              onChange={(colors) => updateConfig('colors', colors)}
-              style={project.style}
-            />
-            <TypographySection
-              typography={config.typography || {}}
-              onChange={(typography) => updateConfig('typography', typography)}
-              style={project.style}
-            />
-            <SpacingSection
-              spacing={config.spacing || {}}
-              onChange={(spacing) => updateConfig('spacing', spacing)}
-              style={project.style}
-            />
-            <BordersSection
-              borders={config.borders || {}}
-              onChange={(borders) => updateConfig('borders', borders)}
-              style={project.style}
-            />
-            <ShadowsSection
-              shadows={config.shadows || {}}
-              onChange={(shadows) => updateConfig('shadows', shadows)}
-              style={project.style}
-            />
-            <LayoutSection
-              layout={config.layout || {}}
-              onChange={(layout) => updateConfig('layout', layout)}
-              style={project.style}
-            />
-            <ComponentsSection
-              components={config.components || {}}
-              onChange={(components) => updateConfig('components', components)}
-              style={project.style}
-            />
-            <IconsSection
-              icons={config.icons || {}}
-              onChange={(icons) => updateConfig('icons', icons)}
-              style={project.style}
-            />
-            <MotionSection
-              motion={config.motion || {}}
-              onChange={(motion) => updateConfig('motion', motion)}
-              style={project.style}
-            />
-          </Accordion>
-        </ScrollArea>
-
-        {/* Footer */}
-        <div className="border-t border-studio-border p-4">
-          <Button className="w-full gap-2">
-            <Download className="h-4 w-4" />
-            Export Design System
-          </Button>
-        </div>
-      </aside>
-
-      {/* Right Panel - Preview */}
-      <main className="flex-1 flex flex-col">
-        <div className="flex h-14 items-center justify-between border-b border-studio-border px-4">
-          <span className="text-muted-foreground text-body-sm">Live Preview</span>
-          <div className="flex items-center gap-2">
-            {project.style && (
-              <span className="rounded-full bg-secondary px-2.5 py-0.5 text-caption font-medium">
-                {project.style}
-              </span>
+    <div className="flex h-screen flex-col bg-background">
+      {/* Header */}
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-card px-4">
+        {/* Left: Logo + Context */}
+        <div className="flex items-center gap-4">
+          <Logo />
+          <div className="h-5 w-px bg-border" />
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            {project.template && (
+              <>
+                <span className="capitalize">{project.template}</span>
+                <span>·</span>
+              </>
             )}
-            <span className="text-body-sm text-muted-foreground">Step 3 of 3</span>
+            {project.style && (
+              <span className="capitalize">{project.style}</span>
+            )}
           </div>
         </div>
-        <div className="flex-1">
-          <PreviewPanel config={config} template={project.template} />
+        
+        {/* Center: Progress */}
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-muted-foreground">Step 3 of 3</span>
+          <div className="flex gap-1">
+            <div className="h-1.5 w-6 rounded-full bg-primary" />
+            <div className="h-1.5 w-6 rounded-full bg-primary" />
+            <div className="h-1.5 w-6 rounded-full bg-primary" />
+          </div>
         </div>
-      </main>
+        
+        {/* Right: Actions */}
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground">
+            <History className="h-4 w-4" />
+            History
+          </Button>
+          <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground" onClick={saveNow}>
+            <Bookmark className="h-4 w-4" />
+            Checkpoint
+          </Button>
+          <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground">
+            <Download className="h-4 w-4" />
+            Export
+          </Button>
+          
+          <div className="mx-2 h-5 w-px bg-border" />
+          
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            {isSaving ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Check className="h-3.5 w-3.5 text-success" />
+                Saved
+              </>
+            )}
+          </div>
+          
+          <Button variant="ghost" size="icon" className="h-8 w-8 ml-2">
+            <Settings className="h-4 w-4" />
+          </Button>
+        </div>
+      </header>
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left Panel - Configuration */}
+        <aside className="flex w-[480px] flex-col border-r border-border bg-card">
+          <ScrollArea className="flex-1">
+            <Accordion
+              type="single"
+              collapsible
+              value={openSection}
+              onValueChange={setOpenSection}
+            >
+              <ColorsSection
+                colors={config.colors || {}}
+                onChange={(colors) => updateConfig('colors', colors)}
+                style={project.style}
+              />
+              <TypographySection
+                typography={config.typography || {}}
+                onChange={(typography) => updateConfig('typography', typography)}
+                style={project.style}
+              />
+              <SpacingSection
+                spacing={config.spacing || {}}
+                onChange={(spacing) => updateConfig('spacing', spacing)}
+                style={project.style}
+              />
+              <BordersSection
+                borders={config.borders || {}}
+                onChange={(borders) => updateConfig('borders', borders)}
+                style={project.style}
+              />
+              <ShadowsSection
+                shadows={config.shadows || {}}
+                onChange={(shadows) => updateConfig('shadows', shadows)}
+                style={project.style}
+              />
+              <LayoutSection
+                layout={config.layout || {}}
+                onChange={(layout) => updateConfig('layout', layout)}
+                style={project.style}
+              />
+              <ComponentsSection
+                components={config.components || {}}
+                onChange={(components) => updateConfig('components', components)}
+                style={project.style}
+              />
+              <IconsSection
+                icons={config.icons || {}}
+                onChange={(icons) => updateConfig('icons', icons)}
+                style={project.style}
+              />
+              <MotionSection
+                motion={config.motion || {}}
+                onChange={(motion) => updateConfig('motion', motion)}
+                style={project.style}
+              />
+            </Accordion>
+          </ScrollArea>
+        </aside>
+
+        {/* Right Panel - Preview */}
+        <main className="flex-1 flex flex-col bg-[#1a1215]">
+          <PreviewPanel config={config} template={project.template} />
+          
+          {/* Footer hint */}
+          <div className="shrink-0 border-t border-white/10 bg-black/20 px-4 py-2 text-center text-xs text-white/40">
+            Use arrow keys to navigate preview · Space to toggle grid
+          </div>
+        </main>
+      </div>
     </div>
   );
 };
-
-function formatTime(date: Date): string {
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (seconds < 5) return 'just now';
-  if (seconds < 60) return `${seconds}s ago`;
-  const minutes = Math.floor(seconds / 60);
-  return `${minutes}m ago`;
-}
 
 export default Studio;
