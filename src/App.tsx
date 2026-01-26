@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { PublicOnlyRoute } from "@/components/PublicOnlyRoute";
 
 // Pages
 import Landing from "./pages/Landing";
@@ -32,10 +33,22 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/about" element={<About />} />
             
-            {/* Authentication */}
-            <Route path="/auth/signin" element={<SignIn />} />
-            <Route path="/auth/signup" element={<SignUp />} />
-            <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+            {/* Authentication - redirect to dashboard if already logged in */}
+            <Route path="/auth/signin" element={
+              <PublicOnlyRoute>
+                <SignIn />
+              </PublicOnlyRoute>
+            } />
+            <Route path="/auth/signup" element={
+              <PublicOnlyRoute>
+                <SignUp />
+              </PublicOnlyRoute>
+            } />
+            <Route path="/auth/forgot-password" element={
+              <PublicOnlyRoute>
+                <ForgotPassword />
+              </PublicOnlyRoute>
+            } />
             
             {/* Protected: Create Flow */}
             <Route path="/create/template" element={
