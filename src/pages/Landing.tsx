@@ -1,14 +1,21 @@
+import { LandingHeader } from '@/components/layout/LandingHeader';
+import { Hero } from '@/components/landing/Hero';
+import { SocialProof } from '@/components/landing/SocialProof';
+import { HowItWorks } from '@/components/landing/HowItWorks';
+import { Features } from '@/components/landing/Features';
+import { CTA } from '@/components/landing/CTA';
+import { Footer } from '@/components/landing/Footer';
+
 const Landing = () => {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background dark">
-      <div className="text-center">
-        <h1 className="mb-4 text-display-sm font-bold text-foreground">
-          Palet
-        </h1>
-        <p className="text-body-lg text-muted-foreground">
-          AI-Ready Design System Generator
-        </p>
-      </div>
+    <div className="min-h-screen bg-[#1a1215]">
+      <LandingHeader />
+      <Hero />
+      <SocialProof />
+      <HowItWorks />
+      <Features />
+      <CTA />
+      <Footer />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Monitor, Tablet, Smartphone } from 'lucide-react';
+import { Monitor, Tablet, Smartphone, ZoomIn, ZoomOut, Moon, Sun, Grid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ProjectConfig } from '@/types/database';
@@ -11,64 +11,145 @@ interface PreviewPanelProps {
   template?: string | null;
 }
 
-const viewports: { id: Viewport; icon: typeof Monitor; label: string; width: string }[] = [
-  { id: 'desktop', icon: Monitor, label: 'Desktop', width: 'w-full' },
-  { id: 'tablet', icon: Tablet, label: 'Tablet', width: 'w-[768px]' },
-  { id: 'mobile', icon: Smartphone, label: 'Mobile', width: 'w-[375px]' },
-];
+const viewportSizes = {
+  desktop: { width: '100%', label: 'Desktop' },
+  tablet: { width: '768px', label: 'Tablet' },
+  mobile: { width: '375px', label: 'Mobile' },
+};
 
 export function PreviewPanel({ config, template }: PreviewPanelProps) {
   const [viewport, setViewport] = useState<Viewport>('desktop');
-
-  const currentViewport = viewports.find((v) => v.id === viewport)!;
-
-  // Generate CSS custom properties from config
-  const previewStyles = generatePreviewStyles(config);
+  const [zoom, setZoom] = useState(100);
+  const [darkMode, setDarkMode] = useState(true);
+  const [showGrid, setShowGrid] = useState(false);
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Viewport controls */}
-      <div className="flex items-center justify-center gap-1 border-b border-studio-border bg-chrome-background px-4 py-2">
-        {viewports.map((vp) => (
+    <div className="flex flex-1 flex-col overflow-hidden">
+      {/* Preview controls */}
+      <div className="flex shrink-0 items-center justify-between border-b border-white/10 bg-black/20 px-4 py-2">
+        <div className="flex items-center gap-1">
+          {/* Viewport buttons */}
+          {(Object.keys(viewportSizes) as Viewport[]).map((size) => {
+            const Icon = size === 'desktop' ? Monitor : size === 'tablet' ? Tablet : Smartphone;
+            return (
+              <Button
+                key={size}
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  'h-8 w-8',
+                  viewport === size 
+                    ? 'bg-white/10 text-white' 
+                    : 'text-white/50 hover:text-white hover:bg-white/5'
+                )}
+                onClick={() => setViewport(size)}
+              >
+                <Icon className="h-4 w-4" />
+              </Button>
+            );
+          })}
+        </div>
+        
+        <div className="flex items-center gap-1">
+          {/* Zoom controls */}
           <Button
-            key={vp.id}
-            variant={viewport === vp.id ? 'secondary' : 'ghost'}
-            size="sm"
-            onClick={() => setViewport(vp.id)}
-            className="gap-2"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-white/50 hover:text-white hover:bg-white/5"
+            onClick={() => setZoom(Math.max(50, zoom - 10))}
           >
-            <vp.icon className="h-4 w-4" />
-            <span className="hidden sm:inline">{vp.label}</span>
+            <ZoomOut className="h-4 w-4" />
           </Button>
-        ))}
+          <span className="w-12 text-center text-xs text-white/50">{zoom}%</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-white/50 hover:text-white hover:bg-white/5"
+            onClick={() => setZoom(Math.min(150, zoom + 10))}
+          >
+            <ZoomIn className="h-4 w-4" />
+          </Button>
+          
+          <div className="mx-2 h-4 w-px bg-white/10" />
+          
+          {/* Grid toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              'h-8 w-8',
+              showGrid 
+                ? 'bg-white/10 text-white' 
+                : 'text-white/50 hover:text-white hover:bg-white/5'
+            )}
+            onClick={() => setShowGrid(!showGrid)}
+          >
+            <Grid className="h-4 w-4" />
+          </Button>
+          
+          {/* Dark mode toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-white/50 hover:text-white hover:bg-white/5"
+            onClick={() => setDarkMode(!darkMode)}
+          >
+            {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
+        </div>
       </div>
-
+      
       {/* Preview container */}
-      <div className="flex-1 overflow-auto bg-muted/30 p-6">
-        <div
-          className={cn(
-            'mx-auto h-full rounded-lg border border-border bg-background shadow-soft transition-all duration-300',
-            currentViewport.width
-          )}
-          style={previewStyles}
+      <div className="flex flex-1 items-center justify-center overflow-auto p-8">
+        {/* Browser mockup */}
+        <div 
+          className="flex flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0d0a0b] shadow-2xl transition-all duration-300"
+          style={{ 
+            width: viewportSizes[viewport].width,
+            maxWidth: '100%',
+            transform: `scale(${zoom / 100})`,
+            transformOrigin: 'center center',
+          }}
         >
           {/* Browser chrome */}
-          <div className="flex items-center gap-2 border-b border-border bg-chrome-background px-4 py-3 rounded-t-lg">
+          <div className="flex shrink-0 items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-3">
             <div className="flex gap-1.5">
-              <div className="h-3 w-3 rounded-full bg-chrome-dot-red" />
-              <div className="h-3 w-3 rounded-full bg-chrome-dot-yellow" />
-              <div className="h-3 w-3 rounded-full bg-chrome-dot-green" />
+              <div className="h-3 w-3 rounded-full bg-[#ff5f57]" />
+              <div className="h-3 w-3 rounded-full bg-[#febc2e]" />
+              <div className="h-3 w-3 rounded-full bg-[#28c840]" />
             </div>
-            <div className="flex-1 mx-4">
-              <div className="bg-muted rounded-md px-3 py-1.5 text-caption text-muted-foreground text-center">
-                preview.example.com
-              </div>
+            <div className="flex-1 text-center">
+              <span className="rounded-md bg-white/5 px-3 py-1 text-xs text-white/40">
+                localhost:3000/preview
+              </span>
             </div>
           </div>
-
+          
           {/* Preview content */}
-          <div className="p-6 space-y-6">
-            <PreviewContent config={config} template={template} />
+          <div 
+            className={cn(
+              'relative min-h-[400px] overflow-auto',
+              darkMode ? 'bg-[#1a1215]' : 'bg-[#f8f6f6]'
+            )}
+          >
+            {/* Grid overlay */}
+            {showGrid && (
+              <div 
+                className="pointer-events-none absolute inset-0 opacity-20"
+                style={{
+                  backgroundImage: `
+                    linear-gradient(hsl(356 81% 54% / 0.5) 1px, transparent 1px),
+                    linear-gradient(90deg, hsl(356 81% 54% / 0.5) 1px, transparent 1px)
+                  `,
+                  backgroundSize: '40px 40px',
+                }}
+              />
+            )}
+            
+            {/* Sample preview content based on config */}
+            <div className="p-8">
+              <PreviewContent config={config} template={template} darkMode={darkMode} />
+            </div>
           </div>
         </div>
       </div>
@@ -76,127 +157,141 @@ export function PreviewPanel({ config, template }: PreviewPanelProps) {
   );
 }
 
-function PreviewContent({ config, template }: { config: ProjectConfig; template?: string | null }) {
-  const primaryColor = config.colors?.primary || 'hsl(356 81% 54%)';
-  const fontFamily = config.typography?.fontFamily || 'Public Sans';
+// Preview content component showing design system in action
+function PreviewContent({ 
+  config, 
+  template, 
+  darkMode 
+}: { 
+  config: ProjectConfig; 
+  template?: string | null;
+  darkMode: boolean;
+}) {
+  const primaryColor = config.colors?.primary || 'hsl(356, 81%, 54%)';
   const borderRadius = getBorderRadius(config.borders?.radius);
-
+  
+  const textColor = darkMode ? 'text-white' : 'text-foreground';
+  const mutedColor = darkMode ? 'text-white/60' : 'text-muted-foreground';
+  const cardBg = darkMode ? 'bg-white/5' : 'bg-white';
+  const borderColor = darkMode ? 'border-white/10' : 'border-border';
+  
   return (
     <div className="space-y-8">
-      {/* Hero section preview */}
+      {/* Typography preview */}
       <div className="space-y-4">
-        <h1 
-          className="text-display-sm font-bold"
-          style={{ fontFamily }}
-        >
+        <h1 className={cn('text-display-sm font-bold', textColor)}>
           Welcome to {template || 'Your Site'}
         </h1>
-        <p className="text-body-lg text-muted-foreground max-w-lg">
+        <p className={cn('text-body-lg', mutedColor)}>
           This is a live preview of your design system. Changes you make in the configuration panel will appear here instantly.
         </p>
-        <div className="flex gap-3">
-          <button
-            className="px-6 py-2.5 font-medium text-white transition-colors"
-            style={{ 
-              backgroundColor: primaryColor, 
-              borderRadius,
-            }}
-          >
-            Primary Button
-          </button>
-          <button
-            className="px-6 py-2.5 font-medium border transition-colors"
-            style={{ 
-              borderColor: primaryColor,
-              color: primaryColor,
-              borderRadius,
-            }}
-          >
-            Secondary Button
-          </button>
-        </div>
       </div>
-
+      
+      {/* Button preview */}
+      <div className="flex flex-wrap gap-3">
+        <button 
+          className="px-4 py-2 text-sm font-medium transition-colors text-white"
+          style={{ 
+            backgroundColor: primaryColor,
+            borderRadius,
+          }}
+        >
+          Primary Button
+        </button>
+        <button 
+          className={cn(
+            'px-4 py-2 text-sm font-medium transition-colors border',
+            borderColor,
+            textColor
+          )}
+          style={{ borderRadius }}
+        >
+          Secondary Button
+        </button>
+        <button 
+          className={cn(
+            'px-4 py-2 text-sm font-medium transition-colors',
+            mutedColor,
+            'hover:opacity-80'
+          )}
+        >
+          Ghost Button
+        </button>
+      </div>
+      
       {/* Card preview */}
-      <div 
-        className="border bg-card p-6 shadow-soft"
-        style={{ borderRadius }}
+      <div className={cn(
+        'rounded-lg border p-6',
+        cardBg,
+        borderColor
+      )}
+      style={{ borderRadius }}
       >
-        <h3 className="text-heading-md font-semibold mb-2">Card Component</h3>
-        <p className="text-body-sm text-muted-foreground mb-4">
-          Preview how cards will look with your current settings.
-        </p>
+        <div className="flex items-start gap-4">
+          <div 
+            className="h-12 w-12 rounded-lg"
+            style={{ backgroundColor: primaryColor }}
+          />
+          <div className="flex-1 space-y-2">
+            <h3 className={cn('font-semibold', textColor)}>Card Component</h3>
+            <p className={cn('text-sm', mutedColor)}>
+              Preview how cards will look with your current settings.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      {/* Input preview */}
+      <div className="space-y-3">
+        <label className={cn('text-sm font-medium', textColor)}>Input Field</label>
+        <input
+          type="text"
+          placeholder="Type something..."
+          className={cn(
+            'w-full border bg-transparent px-3 py-2 text-sm placeholder:opacity-50',
+            borderColor,
+            textColor
+          )}
+          style={{ borderRadius }}
+        />
+      </div>
+      
+      {/* Color palette preview */}
+      <div className="space-y-3">
+        <h4 className={cn('text-sm font-medium', textColor)}>Color Palette</h4>
         <div className="flex gap-2">
-          <span 
-            className="inline-flex items-center px-2.5 py-0.5 text-caption font-medium text-white"
-            style={{ backgroundColor: primaryColor, borderRadius }}
-          >
-            Badge
-          </span>
-          <span 
-            className="inline-flex items-center px-2.5 py-0.5 text-caption font-medium bg-muted"
-            style={{ borderRadius }}
-          >
-            Muted Badge
-          </span>
+          <div 
+            className="h-10 w-10 rounded-md"
+            style={{ backgroundColor: primaryColor }}
+            title="Primary"
+          />
+          <div 
+            className={cn('h-10 w-10 rounded-md border', borderColor)}
+            style={{ backgroundColor: darkMode ? 'hsl(220 13% 15%)' : 'hsl(220 14% 96%)' }}
+            title="Secondary"
+          />
+          <div 
+            className={cn('h-10 w-10 rounded-md border', borderColor)}
+            style={{ backgroundColor: darkMode ? 'hsl(0 0% 9%)' : 'hsl(0 0% 100%)' }}
+            title="Background"
+          />
         </div>
       </div>
-
-      {/* Form preview */}
-      <div className="space-y-4">
-        <h3 className="text-heading-md font-semibold">Form Elements</h3>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-body-sm font-medium">Input Field</label>
-            <input
-              type="text"
-              placeholder="Enter text..."
-              className="w-full border bg-background px-3 py-2 text-body-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2"
-              style={{ 
-                borderRadius,
-                borderColor: 'hsl(var(--border))',
-              }}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-body-sm font-medium">Select Field</label>
-            <select
-              className="w-full border bg-background px-3 py-2 text-body-sm focus:outline-none focus:ring-2"
-              style={{ 
-                borderRadius,
-                borderColor: 'hsl(var(--border))',
-              }}
-            >
-              <option>Option 1</option>
-              <option>Option 2</option>
-              <option>Option 3</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
+      
       {/* Typography scale */}
       <div className="space-y-3">
-        <h3 className="text-heading-md font-semibold">Typography Scale</h3>
-        <div className="space-y-2">
-          <p className="text-heading-xl">Heading XL</p>
-          <p className="text-heading-lg">Heading LG</p>
-          <p className="text-heading-md">Heading MD</p>
-          <p className="text-body-lg">Body Large</p>
-          <p className="text-body-md">Body Medium</p>
-          <p className="text-body-sm text-muted-foreground">Body Small</p>
-          <p className="text-caption text-muted-foreground">Caption</p>
+        <h4 className={cn('text-sm font-medium', textColor)}>Typography Scale</h4>
+        <div className="space-y-1">
+          <p className={cn('text-heading-lg', textColor)}>Heading Large</p>
+          <p className={cn('text-heading-md', textColor)}>Heading Medium</p>
+          <p className={cn('text-body-lg', textColor)}>Body Large</p>
+          <p className={cn('text-body-md', mutedColor)}>Body Medium</p>
+          <p className={cn('text-body-sm', mutedColor)}>Body Small</p>
+          <p className={cn('text-caption', mutedColor)}>Caption</p>
         </div>
       </div>
     </div>
   );
-}
-
-function generatePreviewStyles(config: ProjectConfig): React.CSSProperties {
-  return {
-    '--preview-primary': config.colors?.primary || 'hsl(356 81% 54%)',
-    fontFamily: config.typography?.fontFamily || 'Public Sans, system-ui, sans-serif',
-  } as React.CSSProperties;
 }
 
 function getBorderRadius(radius?: string): string {
