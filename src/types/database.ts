@@ -1,24 +1,82 @@
 // Project configuration stored as JSONB
+export interface ColorConfig {
+  primary?: string;
+  secondary?: string;
+  accent?: string;
+  background?: string;
+  foreground?: string;
+  muted?: string;
+  destructive?: string;
+  success?: string;
+  warning?: string;
+  [key: string]: string | undefined;
+}
+
+export interface TypographyConfig {
+  fontFamily?: string;
+  headingFont?: string;
+  monoFont?: string;
+  scale?: 'compact' | 'default' | 'relaxed' | 'spacious';
+  baseSize?: number;
+  [key: string]: string | number | undefined;
+}
+
+export interface SpacingConfig {
+  base?: number;
+  scale?: 'tight' | 'default' | 'relaxed' | 'spacious';
+  [key: string]: string | number | undefined;
+}
+
+export interface BorderConfig {
+  radius?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  width?: 'none' | 'thin' | 'medium' | 'thick';
+  [key: string]: string | undefined;
+}
+
+export interface ShadowConfig {
+  intensity?: 'none' | 'subtle' | 'medium' | 'dramatic';
+  style?: 'flat' | 'soft' | 'hard' | 'layered';
+  [key: string]: string | undefined;
+}
+
+export interface LayoutConfig {
+  containerWidth?: 'narrow' | 'default' | 'wide' | 'full';
+  gridColumns?: number;
+  sidebarPosition?: 'left' | 'right' | 'none';
+  [key: string]: string | number | undefined;
+}
+
+export interface ComponentConfig {
+  buttonStyle?: 'solid' | 'outline' | 'ghost' | 'soft';
+  inputStyle?: 'outline' | 'filled' | 'underline';
+  cardStyle?: 'elevated' | 'outlined' | 'filled';
+  [key: string]: string | undefined;
+}
+
+export interface IconConfig {
+  style?: 'outline' | 'solid' | 'duotone';
+  size?: 'sm' | 'md' | 'lg';
+  library?: 'lucide' | 'heroicons' | 'phosphor';
+  [key: string]: string | undefined;
+}
+
+export interface MotionConfig {
+  duration?: 'instant' | 'fast' | 'normal' | 'slow';
+  easing?: 'linear' | 'ease' | 'spring' | 'bounce';
+  enabled?: boolean;
+  [key: string]: string | boolean | undefined;
+}
+
 export interface ProjectConfig {
-  colors?: {
-    primary?: string;
-    secondary?: string;
-    accent?: string;
-    background?: string;
-    foreground?: string;
-    [key: string]: string | undefined;
-  };
-  typography?: {
-    fontFamily?: string;
-    headingFont?: string;
-    scale?: number;
-    [key: string]: string | number | undefined;
-  };
-  spacing?: {
-    base?: number;
-    scale?: number;
-    [key: string]: number | undefined;
-  };
+  colors?: ColorConfig;
+  typography?: TypographyConfig;
+  spacing?: SpacingConfig;
+  borders?: BorderConfig;
+  shadows?: ShadowConfig;
+  layout?: LayoutConfig;
+  components?: ComponentConfig;
+  icons?: IconConfig;
+  motion?: MotionConfig;
   [key: string]: unknown;
 }
 
