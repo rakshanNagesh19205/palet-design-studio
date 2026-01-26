@@ -3,24 +3,13 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useProject } from '@/hooks/useProjects';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { ProjectConfig } from '@/types/database';
-import { Accordion } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Logo } from '@/components/layout/Logo';
-import { PreviewPanel } from '@/components/studio/PreviewPanel';
-import { ColorsSection } from '@/components/studio/sections/ColorsSection';
-import { TypographySection } from '@/components/studio/sections/TypographySection';
-import { SpacingSection } from '@/components/studio/sections/SpacingSection';
-import { BordersSection } from '@/components/studio/sections/BordersSection';
-import { ShadowsSection } from '@/components/studio/sections/ShadowsSection';
-import { LayoutSection } from '@/components/studio/sections/LayoutSection';
-import { ComponentsSection } from '@/components/studio/sections/ComponentsSection';
-import { IconsSection } from '@/components/studio/sections/IconsSection';
-import { MotionSection } from '@/components/studio/sections/MotionSection';
-import { History, Bookmark, Download, Check, Loader2, Settings } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { History, Bookmark, Download, Check, Loader2, ChevronDown, Monitor, Tablet, Smartphone, ZoomIn, Moon, Sun } from 'lucide-react';
 
 const defaultConfig: ProjectConfig = {
-  colors: { primary: 'hsl(356, 81%, 54%)' },
+  colors: { primary: 'hsl(356, 81%, 54%)', accent: 'hsl(173, 80%, 40%)' },
   typography: { fontFamily: 'Public Sans', scale: 'default' },
   spacing: { scale: 'default' },
   borders: { radius: 'md' },
@@ -31,6 +20,47 @@ const defaultConfig: ProjectConfig = {
   motion: { enabled: true, duration: 'normal', easing: 'ease' },
 };
 
+const sections = [
+  { id: 'colors', name: 'Colors', icon: 'palette' },
+  { id: 'typography', name: 'Typography', icon: 'text_fields' },
+  { id: 'spacing', name: 'Spacing', icon: 'space_bar' },
+  { id: 'borders', name: 'Border Radius', icon: 'rounded_corner' },
+  { id: 'shadows', name: 'Shadows', icon: 'blur_on' },
+  { id: 'buttons', name: 'Buttons', icon: 'smart_button' },
+  { id: 'forms', name: 'Forms', icon: 'input' },
+  { id: 'cards', name: 'Cards', icon: 'dashboard' },
+  { id: 'navigation', name: 'Navigation', icon: 'menu' },
+  { id: 'motion', name: 'Motion', icon: 'animation' },
+];
+
+const colorOptions = [
+  { name: 'Teal', value: 'hsl(173, 80%, 40%)', micro: 'Fresh & modern' },
+  { name: 'Peach', value: 'hsl(24, 95%, 53%)', micro: 'Warm & inviting' },
+  { name: 'Mint', value: 'hsl(158, 64%, 52%)', micro: 'Clean & natural' },
+  { name: 'Slate', value: 'hsl(215, 20%, 65%)', micro: 'Calm & neutral' },
+];
+
+const typographyOptions = [
+  { name: 'DM Sans', value: 'DM Sans', micro: 'Geometric & modern' },
+  { name: 'Inter', value: 'Inter', micro: 'Clean & versatile' },
+  { name: 'Quicksand', value: 'Quicksand', micro: 'Friendly & rounded' },
+  { name: 'Public Sans', value: 'Public Sans', micro: 'Strong & neutral' },
+];
+
+const radiusOptions = [
+  { name: 'Rounded', value: 'lg', micro: '12px corners' },
+  { name: 'Moderate', value: 'md', micro: '8px corners' },
+  { name: 'Pill', value: 'full', micro: 'Fully rounded' },
+  { name: 'Sharp', value: 'none', micro: '0px corners' },
+];
+
+const shadowOptions = [
+  { name: 'None', value: 'none', micro: 'Flat design' },
+  { name: 'Subtle', value: 'subtle', micro: 'Soft depth' },
+  { name: 'Medium', value: 'medium', micro: 'Balanced' },
+  { name: 'Dramatic', value: 'dramatic', micro: 'Bold elevation' },
+];
+
 const Studio = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
@@ -38,10 +68,11 @@ const Studio = () => {
   
   const [config, setConfig] = useState<ProjectConfig>(defaultConfig);
   const [openSection, setOpenSection] = useState<string>('colors');
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [previewDark, setPreviewDark] = useState(false);
   
   const { isSaving, lastSaved, saveNow } = useAutoSave(projectId, config);
 
-  // Initialize config from project data
   useEffect(() => {
     if (project?.config) {
       setConfig({
@@ -60,11 +91,12 @@ const Studio = () => {
     }
   }, [project]);
 
-  const updateConfig = <K extends keyof ProjectConfig>(
-    section: K,
-    value: ProjectConfig[K]
-  ) => {
+  const updateConfig = <K extends keyof ProjectConfig>(section: K, value: ProjectConfig[K]) => {
     setConfig((prev) => ({ ...prev, [section]: value }));
+  };
+
+  const toggleSection = (sectionId: string) => {
+    setOpenSection(openSection === sectionId ? '' : sectionId);
   };
 
   if (isLoading) {
@@ -86,24 +118,42 @@ const Studio = () => {
     );
   }
 
+  const getSelectedOption = (sectionId: string) => {
+    switch (sectionId) {
+      case 'colors':
+        const colorOpt = colorOptions.find(o => o.value === config.colors?.accent);
+        return colorOpt ? { name: colorOpt.name, micro: colorOpt.micro, color: colorOpt.value } : null;
+      case 'typography':
+        const typoOpt = typographyOptions.find(o => o.value === config.typography?.fontFamily);
+        return typoOpt ? { name: typoOpt.name, micro: typoOpt.micro } : null;
+      case 'borders':
+        const radiusOpt = radiusOptions.find(o => o.value === config.borders?.radius);
+        return radiusOpt ? { name: radiusOpt.name, micro: radiusOpt.micro } : null;
+      case 'shadows':
+        const shadowOpt = shadowOptions.find(o => o.value === config.shadows?.intensity);
+        return shadowOpt ? { name: shadowOpt.name, micro: shadowOpt.micro } : null;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="flex h-screen flex-col bg-background">
       {/* Header */}
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-card px-4">
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-white px-4">
         {/* Left: Logo + Context */}
         <div className="flex items-center gap-4">
-          <Logo />
+          <Link to="/dashboard" className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-primary rounded flex items-center justify-center">
+              <span className="text-white font-bold text-xs">P.</span>
+            </div>
+            <span className="font-semibold text-slate-900">Palet</span>
+          </Link>
           <div className="h-5 w-px bg-border" />
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            {project.template && (
-              <>
-                <span className="capitalize">{project.template}</span>
-                <span>·</span>
-              </>
-            )}
-            {project.style && (
-              <span className="capitalize">{project.style}</span>
-            )}
+            {project.template && <span className="capitalize">{project.template}</span>}
+            {project.template && project.style && <span>·</span>}
+            {project.style && <span className="capitalize">{project.style}</span>}
           </div>
         </div>
         
@@ -142,80 +192,262 @@ const Studio = () => {
               </>
             ) : (
               <>
-                <Check className="h-3.5 w-3.5 text-success" />
+                <Check className="h-3.5 w-3.5 text-green-600" />
                 Saved
               </>
             )}
           </div>
-          
-          <Button variant="ghost" size="icon" className="h-8 w-8 ml-2">
-            <Settings className="h-4 w-4" />
-          </Button>
         </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left Panel - Configuration */}
-        <aside className="flex w-[480px] flex-col border-r border-border bg-card">
+        <aside className="w-[480px] border-r border-border bg-white flex flex-col">
           <ScrollArea className="flex-1">
-            <Accordion
-              type="single"
-              collapsible
-              value={openSection}
-              onValueChange={setOpenSection}
-            >
-              <ColorsSection
-                colors={config.colors || {}}
-                onChange={(colors) => updateConfig('colors', colors)}
-                style={project.style}
-              />
-              <TypographySection
-                typography={config.typography || {}}
-                onChange={(typography) => updateConfig('typography', typography)}
-                style={project.style}
-              />
-              <SpacingSection
-                spacing={config.spacing || {}}
-                onChange={(spacing) => updateConfig('spacing', spacing)}
-                style={project.style}
-              />
-              <BordersSection
-                borders={config.borders || {}}
-                onChange={(borders) => updateConfig('borders', borders)}
-                style={project.style}
-              />
-              <ShadowsSection
-                shadows={config.shadows || {}}
-                onChange={(shadows) => updateConfig('shadows', shadows)}
-                style={project.style}
-              />
-              <LayoutSection
-                layout={config.layout || {}}
-                onChange={(layout) => updateConfig('layout', layout)}
-                style={project.style}
-              />
-              <ComponentsSection
-                components={config.components || {}}
-                onChange={(components) => updateConfig('components', components)}
-                style={project.style}
-              />
-              <IconsSection
-                icons={config.icons || {}}
-                onChange={(icons) => updateConfig('icons', icons)}
-                style={project.style}
-              />
-              <MotionSection
-                motion={config.motion || {}}
-                onChange={(motion) => updateConfig('motion', motion)}
-                style={project.style}
-              />
-            </Accordion>
+            <div className="p-0">
+              {sections.map((section) => {
+                const isOpen = openSection === section.id;
+                const selected = getSelectedOption(section.id);
+                
+                return (
+                  <div key={section.id} className="border-b border-border">
+                    {/* Section Header */}
+                    <button
+                      onClick={() => toggleSection(section.id)}
+                      className="w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-xl text-muted-foreground">{section.icon}</span>
+                        <span className="font-medium text-slate-900">{section.name}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {!isOpen && selected && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            {selected.color && (
+                              <div className="w-4 h-4 rounded-full border border-gray-200" style={{ backgroundColor: selected.color }} />
+                            )}
+                            <span>{selected.name}</span>
+                            <span className="text-gray-400">·</span>
+                            <span className="text-gray-400">{selected.micro}</span>
+                          </div>
+                        )}
+                        <ChevronDown className={cn('h-4 w-4 text-muted-foreground transition-transform', isOpen && 'rotate-180')} />
+                      </div>
+                    </button>
+                    
+                    {/* Section Content */}
+                    <div className={cn('accordion-content-animated', isOpen && 'expanded')}>
+                      <div>
+                        <div className="px-5 pb-5">
+                          {/* Recommended label */}
+                          <div className="text-xs text-muted-foreground mb-3">
+                            Recommended for <span className="capitalize">{project.style || 'your style'}</span>
+                          </div>
+                          
+                          {/* Options Grid */}
+                          {section.id === 'colors' && (
+                            <div className="grid grid-cols-2 gap-3">
+                              {colorOptions.map((option) => (
+                                <button
+                                  key={option.value}
+                                  onClick={() => updateConfig('colors', { ...config.colors, accent: option.value })}
+                                  className={cn(
+                                    'p-3 rounded-lg border-2 text-left transition-all',
+                                    config.colors?.accent === option.value
+                                      ? 'border-primary bg-primary/5'
+                                      : 'border-gray-200 hover:border-gray-300'
+                                  )}
+                                >
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-5 h-5 rounded-full" style={{ backgroundColor: option.value }} />
+                                    <span className="font-medium text-sm text-slate-900">{option.name}</span>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">{option.micro}</p>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          
+                          {section.id === 'typography' && (
+                            <div className="grid grid-cols-2 gap-3">
+                              {typographyOptions.map((option) => (
+                                <button
+                                  key={option.value}
+                                  onClick={() => updateConfig('typography', { ...config.typography, fontFamily: option.value })}
+                                  className={cn(
+                                    'p-3 rounded-lg border-2 text-left transition-all',
+                                    config.typography?.fontFamily === option.value
+                                      ? 'border-primary bg-primary/5'
+                                      : 'border-gray-200 hover:border-gray-300'
+                                  )}
+                                >
+                                  <span className="font-medium text-sm text-slate-900" style={{ fontFamily: option.value }}>{option.name}</span>
+                                  <p className="text-xs text-muted-foreground mt-1">{option.micro}</p>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          
+                          {section.id === 'borders' && (
+                            <div className="grid grid-cols-2 gap-3">
+                              {radiusOptions.map((option) => (
+                                <button
+                                  key={option.value}
+                                  onClick={() => updateConfig('borders', { radius: option.value as 'lg' | 'md' | 'full' | 'none' })}
+                                  className={cn(
+                                    'p-3 rounded-lg border-2 text-left transition-all',
+                                    config.borders?.radius === option.value
+                                      ? 'border-primary bg-primary/5'
+                                      : 'border-gray-200 hover:border-gray-300'
+                                  )}
+                                >
+                                  <span className="font-medium text-sm text-slate-900">{option.name}</span>
+                                  <p className="text-xs text-muted-foreground mt-1">{option.micro}</p>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          
+                          {section.id === 'shadows' && (
+                            <div className="grid grid-cols-2 gap-3">
+                              {shadowOptions.map((option) => (
+                                <button
+                                  key={option.value}
+                                  onClick={() => updateConfig('shadows', { intensity: option.value as 'none' | 'subtle' | 'medium' | 'dramatic' })}
+                                  className={cn(
+                                    'p-3 rounded-lg border-2 text-left transition-all',
+                                    config.shadows?.intensity === option.value
+                                      ? 'border-primary bg-primary/5'
+                                      : 'border-gray-200 hover:border-gray-300'
+                                  )}
+                                >
+                                  <span className="font-medium text-sm text-slate-900">{option.name}</span>
+                                  <p className="text-xs text-muted-foreground mt-1">{option.micro}</p>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          
+                          {!['colors', 'typography', 'borders', 'shadows'].includes(section.id) && (
+                            <div className="text-sm text-muted-foreground">
+                              Configuration options coming soon...
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </ScrollArea>
         </aside>
 
         {/* Right Panel - Preview */}
         <main className="flex-1 flex flex-col bg-[#1a1215]">
-          <PreviewPanel config={config} template={project.template} />
+          {/* Preview Controls */}
+          <div className="shrink-0 border-b border-white/10 bg-black/20 px-4 py-2 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPreviewDevice('desktop')}
+                className={cn('p-1.5 rounded', previewDevice === 'desktop' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white')}
+              >
+                <Monitor className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setPreviewDevice('tablet')}
+                className={cn('p-1.5 rounded', previewDevice === 'tablet' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white')}
+              >
+                <Tablet className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setPreviewDevice('mobile')}
+                className={cn('p-1.5 rounded', previewDevice === 'mobile' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white')}
+              >
+                <Smartphone className="h-4 w-4" />
+              </button>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button className="p-1.5 rounded text-white/50 hover:text-white">
+                <ZoomIn className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setPreviewDark(!previewDark)}
+                className="p-1.5 rounded text-white/50 hover:text-white"
+              >
+                {previewDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+          
+          {/* Preview Area */}
+          <div className="flex-1 p-8 flex items-center justify-center">
+            <div className={cn(
+              'bg-white rounded-xl shadow-2xl overflow-hidden transition-all duration-300',
+              previewDevice === 'desktop' && 'w-full max-w-4xl h-full',
+              previewDevice === 'tablet' && 'w-[768px] h-full',
+              previewDevice === 'mobile' && 'w-[375px] h-full'
+            )}>
+              {/* Browser Chrome */}
+              <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 flex items-center gap-3">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-400" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                  <div className="w-3 h-3 rounded-full bg-green-400" />
+                </div>
+                <div className="flex-1 flex justify-center">
+                  <div className="bg-white border border-gray-200 rounded px-3 py-1 text-xs text-muted-foreground">
+                    localhost:3000/preview
+                  </div>
+                </div>
+              </div>
+              
+              {/* Preview Content */}
+              <div className={cn('h-[calc(100%-42px)] overflow-auto', previewDark && 'bg-slate-900')}>
+                <div className="p-8" style={{ fontFamily: config.typography?.fontFamily }}>
+                  {/* Sample Restaurant Preview */}
+                  <div className="max-w-lg mx-auto">
+                    <div className="text-center mb-8">
+                      <p className="text-xs uppercase tracking-widest mb-2" style={{ color: config.colors?.accent }}>
+                        EST. 2024
+                      </p>
+                      <h1 className={cn('text-3xl font-serif font-semibold mb-2', previewDark ? 'text-white' : 'text-slate-900')}>
+                        La Maison
+                      </h1>
+                      <p className={previewDark ? 'text-gray-400' : 'text-muted-foreground'}>
+                        French fine dining in the heart of the city
+                      </p>
+                    </div>
+                    
+                    <div 
+                      className="p-6 mb-6 border"
+                      style={{ 
+                        backgroundColor: previewDark ? 'rgba(255,255,255,0.05)' : '#fafafa',
+                        borderColor: previewDark ? 'rgba(255,255,255,0.1)' : '#e5e7eb',
+                        borderRadius: (config.borders?.radius as string) === 'lg' ? '12px' : (config.borders?.radius as string) === 'full' ? '24px' : (config.borders?.radius as string) === 'none' ? '0' : '8px',
+                        boxShadow: (config.shadows?.intensity as string) === 'dramatic' ? '0 20px 40px rgba(0,0,0,0.15)' : (config.shadows?.intensity as string) === 'medium' ? '0 4px 12px rgba(0,0,0,0.1)' : (config.shadows?.intensity as string) === 'subtle' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
+                      }}
+                    >
+                      <h3 className={cn('font-medium mb-2', previewDark ? 'text-white' : 'text-slate-900')}>Reserve a Table</h3>
+                      <p className={cn('text-sm mb-4', previewDark ? 'text-gray-400' : 'text-muted-foreground')}>
+                        Experience our seasonal tasting menu
+                      </p>
+                      <button 
+                        className="px-4 py-2 text-white text-sm font-medium"
+                        style={{ 
+                          backgroundColor: config.colors?.accent,
+                          borderRadius: (config.borders?.radius as string) === 'lg' ? '8px' : (config.borders?.radius as string) === 'full' ? '9999px' : (config.borders?.radius as string) === 'none' ? '0' : '6px'
+                        }}
+                      >
+                        Book Now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           
           {/* Footer hint */}
           <div className="shrink-0 border-t border-white/10 bg-black/20 px-4 py-2 text-center text-xs text-white/40">
