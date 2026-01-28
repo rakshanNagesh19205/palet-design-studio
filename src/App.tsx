@@ -9,8 +9,7 @@ import { PublicOnlyRoute } from "@/components/PublicOnlyRoute";
 
 // Pages
 import Landing from "./pages/Landing";
-import SignIn from "./pages/auth/SignIn";
-import SignUp from "./pages/auth/SignUp";
+import Auth from "./pages/auth/Auth";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import TemplateSelection from "./pages/create/TemplateSelection";
 import StyleSelection from "./pages/create/StyleSelection";
@@ -36,12 +35,12 @@ const App = () => (
             {/* Authentication - redirect to dashboard if already logged in */}
             <Route path="/auth/signin" element={
               <PublicOnlyRoute>
-                <SignIn />
+                <Auth />
               </PublicOnlyRoute>
             } />
             <Route path="/auth/signup" element={
               <PublicOnlyRoute>
-                <SignUp />
+                <Auth />
               </PublicOnlyRoute>
             } />
             <Route path="/auth/forgot-password" element={
