@@ -255,7 +255,7 @@ const SignUp = () => {
       </div>
       
       {/* Right side - Showcase */}
-      <div className="relative hidden w-1/2 lg:block">
+      <div className="hidden min-h-screen w-1/2 lg:flex">
         <StyleShowcase />
       </div>
     </div>

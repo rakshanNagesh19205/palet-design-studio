@@ -225,7 +225,7 @@ const SignIn = () => {
       </div>
       
       {/* Right side - Showcase */}
-      <div className="hidden lg:flex flex-1">
+      <div className="hidden lg:flex flex-1 min-h-screen">
         <StyleShowcase />
       </div>
     </div>
