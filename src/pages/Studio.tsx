@@ -8,6 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { History, Bookmark, Download, Check, Loader2, ChevronDown, Monitor, Tablet, Smartphone, ZoomIn, Moon, Sun } from 'lucide-react';
 import { TemplatePreview } from '@/components/studio/previews/TemplatePreview';
+import { ExportModal } from '@/components/studio/ExportModal';
 import { getTemplatePages, PageType } from '@/lib/templatePages';
 import { getStylePreset, applyStyleToConfig } from '@/lib/stylePresets';
 
@@ -74,6 +75,7 @@ const Studio = () => {
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [previewDark, setPreviewDark] = useState(false);
   const [currentPage, setCurrentPage] = useState<PageType>('home');
+  const [exportModalOpen, setExportModalOpen] = useState(false);
   
   const { isSaving, lastSaved, saveNow } = useAutoSave(projectId, config);
 
@@ -193,7 +195,7 @@ const Studio = () => {
             <Bookmark className="h-4 w-4" />
             Checkpoint
           </Button>
-          <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground">
+          <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground" onClick={() => setExportModalOpen(true)}>
             <Download className="h-4 w-4" />
             Export
           </Button>
@@ -459,6 +461,15 @@ const Studio = () => {
           </div>
         </main>
       </div>
+
+      <ExportModal
+        open={exportModalOpen}
+        onOpenChange={setExportModalOpen}
+        config={config}
+        projectName={project.name}
+        template={project.template}
+        style={project.style}
+      />
     </div>
   );
 };
