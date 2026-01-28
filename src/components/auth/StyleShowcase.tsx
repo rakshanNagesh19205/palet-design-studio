@@ -1,6 +1,6 @@
 export const StyleShowcase = () => {
   return (
-    <div className="hidden h-full flex-col items-center justify-center bg-[#1a1215] p-12 lg:flex">
+    <div className="flex h-full w-full flex-col items-center justify-center bg-[#1a1215] p-12 relative">
       {/* Grid background */}
       <div 
         className="absolute inset-0 opacity-[0.03]"
@@ -21,13 +21,13 @@ export const StyleShowcase = () => {
           <div className="h-16 w-24 rounded-lg bg-white/10" />
         </div>
         
-        <h2 className="text-heading-xl font-bold text-white">
+        <h2 className="text-3xl font-bold text-white md:text-4xl">
           Design systems,
           <br />
           <span className="text-primary">made precise.</span>
         </h2>
         
-        <p className="mt-4 text-body-md text-white/60">
+        <p className="mt-4 text-base text-white/60">
           Configure visually. Export AI-ready specs. Ship faster.
         </p>
         
