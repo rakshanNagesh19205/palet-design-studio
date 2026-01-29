@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { StyleShowcase } from '@/components/auth/StyleShowcase';
-import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Mail, RefreshCw } from 'lucide-react';
 import { z } from 'zod';
 
 const signInSchema = z.object({
@@ -29,8 +29,10 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [emailNotConfirmed, setEmailNotConfirmed] = useState(false);
+  const [resendingEmail, setResendingEmail] = useState(false);
   
-  const { signIn, signUp, signInWithGoogle, signInWithGitHub } = useAuth();
+  const { signIn, signUp, signInWithGoogle, signInWithGitHub, resendVerificationEmail } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -92,16 +94,54 @@ const Auth = () => {
       setLoading(false);
 
       if (error) {
-        toast({
-          title: 'Sign In Failed',
-          description: error.message === 'Invalid login credentials' 
-            ? 'Invalid email or password. Please try again.'
-            : error.message,
-          variant: 'destructive',
-        });
+        // Check for email not confirmed error
+        if (error.message?.toLowerCase().includes('email not confirmed')) {
+          setEmailNotConfirmed(true);
+          toast({
+            title: 'Email Not Verified',
+            description: 'Please verify your email address before signing in.',
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Sign In Failed',
+            description: error.message === 'Invalid login credentials' 
+              ? 'Invalid email or password. Please try again.'
+              : error.message,
+            variant: 'destructive',
+          });
+        }
       } else {
         navigate('/dashboard');
       }
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!email) {
+      toast({
+        title: 'Email Required',
+        description: 'Please enter your email address first.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setResendingEmail(true);
+    const { error } = await resendVerificationEmail(email);
+    setResendingEmail(false);
+
+    if (error) {
+      toast({
+        title: 'Failed to Resend',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: 'Verification Email Sent',
+        description: 'Please check your inbox for the verification link.',
+      });
     }
   };
 
@@ -294,10 +334,36 @@ const Auth = () => {
                   </button>
                 </div>
 
+                {/* Email not confirmed warning */}
+                {emailNotConfirmed && !isSignUp && (
+                  <div className="p-3 rounded-lg bg-amber-50 border border-amber-200">
+                    <div className="flex items-start gap-3">
+                      <Mail className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-amber-800">
+                          Email not verified
+                        </p>
+                        <p className="text-xs text-amber-700 mt-1">
+                          Please check your inbox and click the verification link to continue.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={handleResendVerification}
+                          disabled={resendingEmail}
+                          className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 hover:text-amber-900 transition-colors disabled:opacity-50"
+                        >
+                          <RefreshCw className={`h-3 w-3 ${resendingEmail ? 'animate-spin' : ''}`} />
+                          {resendingEmail ? 'Sending...' : 'Resend verification email'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Forgot password - only for sign in */}
                 <div 
                   className={`transition-all duration-200 ease-out overflow-hidden ${
-                    !isSignUp ? 'max-h-8 opacity-100' : 'max-h-0 opacity-0'
+                    !isSignUp && !emailNotConfirmed ? 'max-h-8 opacity-100' : 'max-h-0 opacity-0'
                   }`}
                 >
                   <div className="flex justify-end">
