@@ -27,13 +27,14 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Search, LayoutGrid, List, FolderOpen, LogOut, MoreHorizontal, Edit3, Copy, Download, Trash2 } from 'lucide-react';
 import { Project } from '@/types/database';
 import { cn } from '@/lib/utils';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, format } from 'date-fns';
 
 // Style gradient mappings for project cards
 const styleGradients: Record<string, string> = {
@@ -164,8 +165,31 @@ const Dashboard = () => {
                   {getInitials(user?.email)}
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={handleSignOut} className="gap-2 text-red-600 focus:text-red-600">
+              <DropdownMenuContent align="end" className="w-64 bg-white border border-gray-200 shadow-lg z-50">
+                {/* Contact Card Section */}
+                <div className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white text-sm font-semibold shrink-0">
+                      {getInitials(user?.email)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-slate-900 truncate">{getDisplayName(user?.email)}</p>
+                      <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-gray-100 space-y-1">
+                    <p className="text-xs text-muted-foreground">
+                      Member since {user?.created_at ? format(new Date(user.created_at), 'MMM yyyy') : 'N/A'}
+                    </p>
+                    <p className="text-xs text-muted-foreground font-mono">
+                      ID: {user?.id?.slice(0, 8) || 'N/A'}...
+                    </p>
+                  </div>
+                </div>
+                
+                <DropdownMenuSeparator />
+                
+                <DropdownMenuItem onClick={handleSignOut} className="gap-2 text-red-600 focus:text-red-600 focus:bg-red-50">
                   <LogOut className="h-4 w-4" />
                   Sign Out
                 </DropdownMenuItem>
