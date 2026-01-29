@@ -177,12 +177,9 @@ const Dashboard = () => {
                       <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
                     </div>
                   </div>
-                  <div className="mt-3 pt-3 border-t border-gray-100 space-y-1">
+                  <div className="mt-3 pt-3 border-t border-gray-100">
                     <p className="text-xs text-muted-foreground">
                       Member since {user?.created_at ? format(new Date(user.created_at), 'MMM yyyy') : 'N/A'}
-                    </p>
-                    <p className="text-xs text-muted-foreground font-mono">
-                      ID: {user?.id?.slice(0, 8) || 'N/A'}...
                     </p>
                   </div>
                 </div>
