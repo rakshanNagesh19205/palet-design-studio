@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ProjectConfig } from '@/types/database';
-import { Check, Copy, Download, FileJson, FileText, Code } from 'lucide-react';
+import { Check, Copy, Download, FileJson, FileText, Code, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ExportModalProps {
@@ -20,7 +20,7 @@ interface ExportModalProps {
   style?: string;
 }
 
-type ExportFormat = 'json' | 'markdown' | 'css';
+type ExportFormat = 'json' | 'markdown' | 'css' | 'tailwind';
 
 export const ExportModal = ({
   open,
@@ -37,6 +37,7 @@ export const ExportModal = ({
     { id: 'json', name: 'JSON', icon: <FileJson className="h-5 w-5" />, description: 'Machine-readable format' },
     { id: 'markdown', name: 'Markdown', icon: <FileText className="h-5 w-5" />, description: 'AI-ready documentation' },
     { id: 'css', name: 'CSS Variables', icon: <Code className="h-5 w-5" />, description: 'Ready to use in code' },
+    { id: 'tailwind', name: 'Tailwind', icon: <Settings className="h-5 w-5" />, description: 'Tailwind config extend' },
   ];
 
   const generateJSON = () => {
@@ -124,6 +125,49 @@ export const ExportModal = ({
 `;
   };
 
+  const generateTailwind = () => {
+    const radiusMap: Record<string, string> = {
+      none: '0',
+      sm: '0.25rem',
+      md: '0.5rem',
+      lg: '0.75rem',
+      xl: '1rem',
+      full: '9999px',
+    };
+
+    const fontFamily = config.typography?.fontFamily || 'Inter';
+    const radius = config.borders?.radius || 'md';
+
+    return `// Add this to your tailwind.config.ts extend section
+{
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: "${config.colors?.primary || 'hsl(356, 81%, 54%)'}",
+        },
+        accent: {
+          DEFAULT: "${config.colors?.accent || 'hsl(173, 80%, 40%)'}",
+        },
+      },
+      fontFamily: {
+        sans: ["${fontFamily}", "system-ui", "sans-serif"],
+      },
+      borderRadius: {
+        DEFAULT: "${radiusMap[radius]}",
+      },
+      transitionDuration: {
+        DEFAULT: "${config.motion?.duration === 'fast' ? '150ms' : config.motion?.duration === 'slow' ? '400ms' : '200ms'}",
+      },
+      transitionTimingFunction: {
+        DEFAULT: "${config.motion?.easing || 'ease'}",
+      },
+    },
+  },
+}
+`;
+  };
+
   const getExportContent = () => {
     switch (selectedFormat) {
       case 'json':
@@ -132,6 +176,8 @@ export const ExportModal = ({
         return generateMarkdown();
       case 'css':
         return generateCSS();
+      case 'tailwind':
+        return generateTailwind();
     }
   };
 
@@ -147,6 +193,7 @@ export const ExportModal = ({
       json: 'json',
       markdown: 'md',
       css: 'css',
+      tailwind: 'ts',
     };
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -170,7 +217,7 @@ export const ExportModal = ({
         </DialogHeader>
 
         {/* Format Selection */}
-        <div className="grid grid-cols-3 gap-3 mt-4">
+        <div className="grid grid-cols-4 gap-3 mt-4">
           {formats.map((format) => (
             <button
               key={format.id}
