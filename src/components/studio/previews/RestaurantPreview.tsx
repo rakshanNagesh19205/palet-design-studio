@@ -1,6 +1,6 @@
 import { TemplatePreviewProps, PreviewHeader, PreviewFooter, PreviewButton, PreviewCard, getBorderRadius } from './shared';
 
-export function RestaurantPreview({ page, config, style }: TemplatePreviewProps) {
+export function RestaurantPreview({ page, config, style, navigation, pages }: TemplatePreviewProps) {
   const font = config.typography?.fontFamily || 'Playfair Display';
   
   const menuItems = [
@@ -22,6 +22,7 @@ export function RestaurantPreview({ page, config, style }: TemplatePreviewProps)
         style={style} 
         brandName="La Maison" 
         navItems={['Home', 'Menu', 'Reservations', 'Contact']}
+        navigation={navigation}
       />
       
       <main className="flex-1 p-8">

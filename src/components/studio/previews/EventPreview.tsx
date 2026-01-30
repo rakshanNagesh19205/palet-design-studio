@@ -1,6 +1,6 @@
 import { TemplatePreviewProps, PreviewHeader, PreviewFooter, PreviewButton, PreviewCard, getBorderRadius } from './shared';
 
-export function EventPreview({ page, config, style }: TemplatePreviewProps) {
+export function EventPreview({ page, config, style, navigation, pages }: TemplatePreviewProps) {
   const font = config.typography?.fontFamily || 'Inter';
   
   const speakers = [
@@ -22,6 +22,7 @@ export function EventPreview({ page, config, style }: TemplatePreviewProps) {
         style={style} 
         brandName="SUMMIT 2024" 
         navItems={['Schedule', 'Speakers', 'Tickets', 'Location']}
+        navigation={navigation}
       />
       
       <main className="flex-1 p-8">

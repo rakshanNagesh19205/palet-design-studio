@@ -1,12 +1,23 @@
 import { ProjectConfig } from '@/types/database';
 import { PageType } from '@/lib/templatePages';
 import { StylePreset } from '@/lib/stylePresets';
+import { NavigationConfig, PageConfig, SectionConfig } from '@/types/studio';
+import { cn } from '@/lib/utils';
 
 export interface TemplatePreviewProps {
   page: PageType;
   config: ProjectConfig;
   style: StylePreset;
   darkMode?: boolean;
+  navigation?: NavigationConfig;
+  pages?: PageConfig[];
+}
+
+// Helper to get section config for current page
+export function getSectionConfig(pages: PageConfig[] | undefined, pageId: string, sectionId: string): SectionConfig | undefined {
+  if (!pages) return undefined;
+  const page = pages.find(p => p.id === pageId);
+  return page?.sections.find(s => s.id === sectionId);
 }
 
 // Shared helper to get border radius value
@@ -40,41 +51,89 @@ export function PreviewHeader({
   style, 
   brandName,
   navItems = ['Home', 'About', 'Services', 'Contact'],
+  navigation,
 }: { 
   config: ProjectConfig; 
   style: StylePreset;
   brandName: string;
   navItems?: string[];
+  navigation?: NavigationConfig;
 }) {
+  const layout = navigation?.layout || 'logo-left';
+  const position = navigation?.position || 'sticky';
+  const background = navigation?.background || 'solid';
+  
+  // Determine background styles based on navigation config
+  const getBackgroundStyle = () => {
+    switch (background) {
+      case 'transparent':
+        return { backgroundColor: 'transparent' };
+      case 'blur':
+        return { 
+          backgroundColor: `${style.cssVars['--preview-bg']}cc`,
+          backdropFilter: 'blur(12px)',
+        };
+      default:
+        return { backgroundColor: style.cssVars['--preview-bg'] };
+    }
+  };
+  
+  // Determine layout classes
+  const getLayoutClasses = () => {
+    switch (layout) {
+      case 'logo-center':
+        return 'justify-center';
+      case 'logo-left-links-center':
+        return 'justify-between';
+      case 'minimal':
+        return 'justify-center';
+      default:
+        return 'justify-between';
+    }
+  };
+
   return (
     <header 
-      className="flex items-center justify-between px-6 py-4 border-b"
+      className={cn(
+        "flex items-center px-6 py-4 border-b",
+        getLayoutClasses(),
+        position === 'sticky' && 'sticky top-0 z-10',
+        position === 'fixed' && 'fixed top-0 left-0 right-0 z-10'
+      )}
       style={{ 
         borderColor: style.cssVars['--preview-border'],
-        backgroundColor: style.cssVars['--preview-bg'],
+        ...getBackgroundStyle(),
       }}
     >
-      <div className="flex items-center gap-2">
-        <div 
-          className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-sm"
-          style={{ 
-            backgroundColor: style.cssVars['--preview-accent'],
-            borderRadius: getBorderRadius(config.borders?.radius),
-          }}
-        >
-          {brandName.charAt(0)}
+      {layout !== 'minimal' && (
+        <div className={cn(
+          "flex items-center gap-2",
+          layout === 'logo-center' && 'absolute left-6'
+        )}>
+          <div 
+            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-sm"
+            style={{ 
+              backgroundColor: style.cssVars['--preview-accent'],
+              borderRadius: getBorderRadius(config.borders?.radius),
+            }}
+          >
+            {brandName.charAt(0)}
+          </div>
+          <span 
+            className="font-semibold"
+            style={{ 
+              color: style.cssVars['--preview-fg'],
+              fontFamily: config.typography?.fontFamily,
+            }}
+          >
+            {brandName}
+          </span>
         </div>
-        <span 
-          className="font-semibold"
-          style={{ 
-            color: style.cssVars['--preview-fg'],
-            fontFamily: config.typography?.fontFamily,
-          }}
-        >
-          {brandName}
-        </span>
-      </div>
-      <nav className="flex items-center gap-6">
+      )}
+      <nav className={cn(
+        "flex items-center gap-6",
+        layout === 'logo-center' && 'mx-auto'
+      )}>
         {navItems.map((item, i) => (
           <span 
             key={item}
@@ -88,6 +147,7 @@ export function PreviewHeader({
           </span>
         ))}
       </nav>
+      {layout === 'logo-center' && <div className="w-24" />}
     </header>
   );
 }

@@ -288,6 +288,8 @@ const Studio = () => {
                   page={currentPage}
                   config={config}
                   darkMode={previewDark}
+                  navigation={navigation}
+                  pages={pages}
                 />
               </div>
             </div>
