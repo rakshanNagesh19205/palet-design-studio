@@ -4,11 +4,12 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { ProjectConfig } from '@/types/database';
-import { Check, Copy, Download, FileJson, FileText, Code, Settings } from 'lucide-react';
+import { NavigationConfig, PageConfig } from '@/types/studio';
+import { Check, Copy, Download, Save, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ExportModalProps {
@@ -16,11 +17,13 @@ interface ExportModalProps {
   onOpenChange: (open: boolean) => void;
   config: ProjectConfig;
   projectName?: string;
-  template?: string;
-  style?: string;
+  template?: string | null;
+  style?: string | null;
+  navigation?: NavigationConfig;
+  pages?: PageConfig[];
 }
 
-type ExportFormat = 'json' | 'markdown' | 'css' | 'tailwind';
+const proFormats = ['Claude Skill', 'Cursor Rules', 'Custom GPT', 'JSON Tokens', 'Tailwind Config'];
 
 export const ExportModal = ({
   open,
@@ -29,177 +32,195 @@ export const ExportModal = ({
   projectName = 'Untitled',
   template,
   style,
+  navigation,
+  pages = [],
 }: ExportModalProps) => {
-  const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('json');
   const [copied, setCopied] = useState(false);
 
-  const formats: { id: ExportFormat; name: string; icon: React.ReactNode; description: string }[] = [
-    { id: 'json', name: 'JSON', icon: <FileJson className="h-5 w-5" />, description: 'Machine-readable format' },
-    { id: 'markdown', name: 'Markdown', icon: <FileText className="h-5 w-5" />, description: 'AI-ready documentation' },
-    { id: 'css', name: 'CSS Variables', icon: <Code className="h-5 w-5" />, description: 'Ready to use in code' },
-    { id: 'tailwind', name: 'Tailwind', icon: <Settings className="h-5 w-5" />, description: 'Tailwind config extend' },
-  ];
-
-  const generateJSON = () => {
-    return JSON.stringify(
-      {
-        name: projectName,
-        template,
-        style,
-        config,
-      },
-      null,
-      2
-    );
-  };
-
   const generateMarkdown = () => {
-    return `# ${projectName} Design System
+    const now = new Date().toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
 
-## Overview
-- **Template**: ${template || 'Not specified'}
-- **Style**: ${style || 'Not specified'}
+    // Design System values
+    const primaryColor = config.colors?.primary || 'hsl(356, 81%, 54%)';
+    const accentColor = config.colors?.accent || 'hsl(173, 80%, 40%)';
+    const fontFamily = config.typography?.fontFamily || 'Inter';
+    const spacingScale = config.spacing?.scale || 'default';
+    const borderRadius = config.borders?.radius || 'md';
+    const shadowIntensity = config.shadows?.intensity || 'medium';
+    const buttonStyle = config.components?.buttonStyle || 'solid';
+    const inputStyle = config.components?.inputStyle || 'outline';
+    const cardStyle = config.components?.cardStyle || 'elevated';
+    const motionDuration = config.motion?.duration || 'normal';
+    const motionEasing = config.motion?.easing || 'ease';
 
-## Colors
-- **Primary**: \`${config.colors?.primary || 'Not set'}\`
-- **Accent**: \`${config.colors?.accent || 'Not set'}\`
+    // Navigation values
+    const navLayout = navigation?.layout || 'logo-left';
+    const navPosition = navigation?.position || 'sticky';
+    const navBackground = navigation?.background || 'solid';
+    const navMobile = navigation?.mobile || 'hamburger';
 
-## Typography
-- **Font Family**: ${config.typography?.fontFamily || 'Not set'}
-- **Scale**: ${config.typography?.scale || 'default'}
+    // Format spacing label
+    const spacingLabels: Record<string, string> = {
+      tight: 'Tight (4px base)',
+      default: 'Balanced (8px base)',
+      relaxed: 'Generous (12px base)',
+      spacious: 'Airy (16px base)',
+    };
 
-## Spacing
-- **Scale**: ${config.spacing?.scale || 'default'}
-
-## Borders
-- **Border Radius**: ${config.borders?.radius || 'md'}
-
-## Shadows
-- **Intensity**: ${config.shadows?.intensity || 'medium'}
-
-## Layout
-- **Container Width**: ${config.layout?.containerWidth || 'default'}
-
-## Components
-- **Button Style**: ${config.components?.buttonStyle || 'solid'}
-- **Card Style**: ${config.components?.cardStyle || 'elevated'}
-
-## Icons
-- **Style**: ${config.icons?.style || 'outline'}
-- **Size**: ${config.icons?.size || 'md'}
-
-## Motion
-- **Enabled**: ${config.motion?.enabled !== false ? 'Yes' : 'No'}
-- **Duration**: ${config.motion?.duration || 'normal'}
-- **Easing**: ${config.motion?.easing || 'ease'}
-`;
-  };
-
-  const generateCSS = () => {
-    const radiusMap: Record<string, string> = {
+    // Format radius label
+    const radiusLabels: Record<string, string> = {
       none: '0px',
       sm: '4px',
       md: '8px',
       lg: '12px',
+      xl: '16px',
       full: '9999px',
     };
 
-    return `:root {
-  /* Colors */
-  --color-primary: ${config.colors?.primary || 'hsl(356, 81%, 54%)'};
-  --color-accent: ${config.colors?.accent || 'hsl(173, 80%, 40%)'};
-
-  /* Typography */
-  --font-family: '${config.typography?.fontFamily || 'Inter'}', sans-serif;
-
-  /* Border Radius */
-  --radius: ${radiusMap[config.borders?.radius || 'md']};
-
-  /* Shadows */
-  --shadow-intensity: ${config.shadows?.intensity || 'medium'};
-
-  /* Motion */
-  --motion-duration: ${config.motion?.duration === 'fast' ? '150ms' : config.motion?.duration === 'slow' ? '400ms' : '200ms'};
-  --motion-easing: ${config.motion?.easing || 'ease'};
-}
-`;
-  };
-
-  const generateTailwind = () => {
-    const radiusMap: Record<string, string> = {
-      none: '0',
-      sm: '0.25rem',
-      md: '0.5rem',
-      lg: '0.75rem',
-      xl: '1rem',
-      full: '9999px',
+    // Format shadow CSS
+    const shadowCSS: Record<string, string> = {
+      none: 'none',
+      subtle: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+      medium: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+      dramatic: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+      layered: '0 10px 40px -10px rgba(0, 0, 0, 0.15)',
     };
 
-    const fontFamily = config.typography?.fontFamily || 'Inter';
-    const radius = config.borders?.radius || 'md';
+    // Format duration
+    const durationLabels: Record<string, string> = {
+      instant: '0ms',
+      fast: '150ms',
+      normal: '200ms',
+      slow: '400ms',
+    };
 
-    return `// Add this to your tailwind.config.ts extend section
-{
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          DEFAULT: "${config.colors?.primary || 'hsl(356, 81%, 54%)'}",
-        },
-        accent: {
-          DEFAULT: "${config.colors?.accent || 'hsl(173, 80%, 40%)'}",
-        },
-      },
-      fontFamily: {
-        sans: ["${fontFamily}", "system-ui", "sans-serif"],
-      },
-      borderRadius: {
-        DEFAULT: "${radiusMap[radius]}",
-      },
-      transitionDuration: {
-        DEFAULT: "${config.motion?.duration === 'fast' ? '150ms' : config.motion?.duration === 'slow' ? '400ms' : '200ms'}",
-      },
-      transitionTimingFunction: {
-        DEFAULT: "${config.motion?.easing || 'ease'}",
-      },
-    },
-  },
-}
+    // Build pages section
+    const pagesMarkdown = pages.map(page => {
+      const sectionsTable = page.sections.map(section => {
+        const enabledOptions = section.toggles.filter(t => t.enabled).map(t => t.label.replace('Show ', ''));
+        return `| ${section.name} | ${section.layout} | ${enabledOptions.join(', ') || '—'} | ${section.animation} |`;
+      }).join('\n');
+
+      return `
+#### ${page.name}
+
+| Section | Layout | Options | Animation |
+|---------|--------|---------|-----------|
+${sectionsTable}`;
+    }).join('\n');
+
+    // Build recommended components
+    const allComponents = pages.flatMap(page => 
+      page.sections.flatMap(section =>
+        section.recommendedComponents.map(comp => ({
+          section: section.name,
+          source: comp.source,
+          name: comp.name,
+        }))
+      )
+    );
+
+    const componentsMarkdown = allComponents.length > 0 
+      ? allComponents.map(c => `| ${c.section} | ${c.source} | ${c.name} |`).join('\n')
+      : '| — | — | — |';
+
+    return `# Website Specification: ${projectName}
+Generated by Palet • ${now}
+
+## Overview
+- **Template:** ${template ? template.charAt(0).toUpperCase() + template.slice(1) : 'Not specified'}
+- **Style:** ${style ? style.charAt(0).toUpperCase() + style.slice(1) : 'Not specified'}
+- **Pages:** ${pages.length}
+
+---
+
+## Design System
+
+### Colors
+- **Primary:** \`${primaryColor}\`
+- **Accent:** \`${accentColor}\`
+
+### Typography
+- **Font Family:** ${fontFamily}
+- **Scale:** ${config.typography?.scale || 'default'}
+
+### Spacing
+- **Scale:** ${spacingLabels[spacingScale] || spacingScale}
+
+### Border Radius
+- **Default:** ${radiusLabels[borderRadius] || borderRadius}
+
+### Shadows
+- **Style:** ${shadowIntensity}
+- **CSS Value:** \`${shadowCSS[shadowIntensity] || 'none'}\`
+
+### Buttons
+- **Style:** ${buttonStyle}
+
+### Forms
+- **Input Style:** ${inputStyle}
+
+### Cards
+- **Style:** ${cardStyle}
+
+### Motion
+- **Duration:** ${durationLabels[motionDuration] || motionDuration}
+- **Easing:** ${motionEasing}
+
+---
+
+## Site Structure
+
+### Navigation
+- **Layout:** ${navLayout}
+- **Position:** ${navPosition}
+- **Background:** ${navBackground}
+- **Mobile:** ${navMobile}
+
+### Pages
+${pagesMarkdown || 'No pages configured'}
+
+---
+
+## Recommended Components
+
+| Section | Source | Component |
+|---------|--------|-----------|
+${componentsMarkdown}
+
+---
+
+## Implementation Notes
+
+- **Framework:** React + Tailwind CSS recommended
+- **Icons:** Lucide React or Material Symbols
+- **Animations:** Framer Motion or CSS transitions
+- **Forms:** React Hook Form + Zod validation
+
+---
+
+*Paste this specification into Claude, Cursor, Lovable, or any AI tool.*
+*The AI will have complete context to build your site exactly as configured.*
 `;
-  };
-
-  const getExportContent = () => {
-    switch (selectedFormat) {
-      case 'json':
-        return generateJSON();
-      case 'markdown':
-        return generateMarkdown();
-      case 'css':
-        return generateCSS();
-      case 'tailwind':
-        return generateTailwind();
-    }
   };
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(getExportContent());
+    await navigator.clipboard.writeText(generateMarkdown());
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleDownload = () => {
-    const content = getExportContent();
-    const extensions: Record<ExportFormat, string> = {
-      json: 'json',
-      markdown: 'md',
-      css: 'css',
-      tailwind: 'ts',
-    };
-    const blob = new Blob([content], { type: 'text/plain' });
+    const content = generateMarkdown();
+    const blob = new Blob([content], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${projectName.toLowerCase().replace(/\s+/g, '-')}-design-system.${extensions[selectedFormat]}`;
+    a.download = `${projectName.toLowerCase().replace(/\s+/g, '-')}-spec.md`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -208,75 +229,84 @@ export const ExportModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Export Design System</DialogTitle>
-          <DialogDescription>
-            Choose a format to export your design specifications
-          </DialogDescription>
+      <DialogContent className="max-w-3xl p-0 gap-0 h-[600px] flex flex-col overflow-hidden">
+        <DialogHeader className="px-6 py-4 border-b border-border shrink-0">
+          <DialogTitle className="text-lg font-bold text-foreground">Export Your Specification</DialogTitle>
         </DialogHeader>
-
-        {/* Format Selection */}
-        <div className="grid grid-cols-4 gap-3 mt-4">
-          {formats.map((format) => (
-            <button
-              key={format.id}
-              onClick={() => setSelectedFormat(format.id)}
-              className={cn(
-                'p-4 rounded-lg border-2 text-left transition-all',
-                selectedFormat === format.id
-                  ? 'border-primary bg-primary/5'
-                  : 'border-border hover:border-primary/50'
-              )}
-            >
-              <div className="flex items-center gap-2 mb-1 text-foreground">
-                {format.icon}
-                <span className="font-medium">{format.name}</span>
-              </div>
-              <p className="text-xs text-muted-foreground">{format.description}</p>
-            </button>
-          ))}
+        
+        {/* Preview Area */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="px-6 py-3 bg-muted/50 border-b border-border flex items-center justify-between shrink-0">
+            <span className="text-sm font-medium text-muted-foreground">Specification Preview</span>
+            <span className="text-xs text-muted-foreground/60">Scroll to see full spec</span>
+          </div>
+          <ScrollArea className="flex-1 bg-muted/30">
+            <div className="p-6">
+              <pre className="text-xs text-foreground font-mono whitespace-pre-wrap bg-background p-4 rounded-lg border border-border">
+                {generateMarkdown()}
+              </pre>
+            </div>
+          </ScrollArea>
         </div>
-
-        {/* Preview */}
-        <div className="mt-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-foreground">Preview</span>
-            <Button
-              variant="ghost"
-              size="sm"
+        
+        {/* Actions */}
+        <div className="px-6 py-4 border-t border-border bg-background shrink-0">
+          {/* Free Actions */}
+          <div className="flex gap-3 mb-4">
+            <Button 
               onClick={handleCopy}
-              className="gap-2 h-8"
+              className="flex-1 gap-2"
             >
               {copied ? (
                 <>
-                  <Check className="h-3.5 w-3.5" />
-                  Copied
+                  <Check className="h-4 w-4" />
+                  Copied!
                 </>
               ) : (
                 <>
-                  <Copy className="h-3.5 w-3.5" />
-                  Copy
+                  <Copy className="h-4 w-4" />
+                  Copy to Clipboard
                 </>
               )}
             </Button>
+            <Button 
+              variant="outline"
+              onClick={handleDownload}
+              className="flex-1 gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Download .md
+            </Button>
+            <Button 
+              variant="outline"
+              className="flex-1 gap-2"
+            >
+              <Save className="h-4 w-4" />
+              Save
+            </Button>
           </div>
-          <div className="bg-muted rounded-lg p-4 max-h-[200px] overflow-auto">
-            <pre className="text-xs text-muted-foreground font-mono whitespace-pre-wrap">
-              {getExportContent()}
-            </pre>
+          
+          {/* Pro Formats */}
+          <div className="pt-4 border-t border-border">
+            <div className="flex items-center gap-2 mb-3">
+              <Lock className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">Pro Export Formats</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {proFormats.map((format) => (
+                <button 
+                  key={format}
+                  className="px-3 py-1.5 bg-muted text-muted-foreground text-sm rounded-lg cursor-not-allowed"
+                  disabled
+                >
+                  {format}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              Unlock all export formats with Pro — $12/month
+            </p>
           </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex justify-end gap-3 mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleDownload} className="gap-2">
-            <Download className="h-4 w-4" />
-            Download
-          </Button>
         </div>
       </DialogContent>
     </Dialog>
