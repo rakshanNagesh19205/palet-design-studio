@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { ChevronRight, ChevronDown, ArrowLeft, ExternalLink } from 'lucide-react';
+import { ChevronDown, ArrowLeft, ExternalLink } from 'lucide-react';
 import { 
   NavigationConfig, 
   PageConfig, 
   SectionConfig, 
   ActiveSection 
 } from '@/types/studio';
+import { PageType } from '@/lib/templatePages';
 
 interface SiteStructureTabProps {
   navigation: NavigationConfig;
@@ -16,6 +17,7 @@ interface SiteStructureTabProps {
   onSectionChange: (pageId: string, sectionId: string, updates: Partial<SectionConfig>) => void;
   onActiveChange: (section: ActiveSection | null) => void;
   activeSection: ActiveSection | null;
+  onPageSelect?: (pageId: PageType) => void;
 }
 
 const navigationLayoutOptions = [
@@ -50,6 +52,11 @@ const animationOptions = [
   { value: 'stagger', label: 'Stagger' },
 ];
 
+// Structure sections list for accordion
+const structureSections = [
+  { id: 'navigation', name: 'Navigation', icon: 'menu' },
+];
+
 export function SiteStructureTab({
   navigation,
   pages,
@@ -57,12 +64,24 @@ export function SiteStructureTab({
   onSectionChange,
   onActiveChange,
   activeSection,
+  onPageSelect,
 }: SiteStructureTabProps) {
-  const [navExpanded, setNavExpanded] = useState(false);
+  // Track which accordion section is open (single-open pattern like DesignSystemTab)
+  const [openSection, setOpenSection] = useState<string>('');
   const [expandedPage, setExpandedPage] = useState<string | null>(null);
 
+  const toggleSection = (sectionId: string) => {
+    setOpenSection(openSection === sectionId ? '' : sectionId);
+  };
+
   const togglePage = (pageId: string) => {
-    setExpandedPage(expandedPage === pageId ? null : pageId);
+    const newExpandedPage = expandedPage === pageId ? null : pageId;
+    setExpandedPage(newExpandedPage);
+    
+    // Sync preview when a page is expanded
+    if (newExpandedPage && onPageSelect) {
+      onPageSelect(newExpandedPage as PageType);
+    }
   };
 
   const openSectionConfig = (page: PageConfig, section: SectionConfig) => {
@@ -89,7 +108,7 @@ export function SiteStructureTab({
     return `${configured}/${page.sections.length}`;
   };
 
-  // Section configuration view
+  // Section configuration view (drill-down)
   if (activeSection) {
     const page = pages.find(p => p.id === activeSection.pageId);
     const section = page?.sections.find(s => s.id === activeSection.sectionId);
@@ -201,129 +220,166 @@ export function SiteStructureTab({
     );
   }
 
+  // Main list view with accordions (matching DesignSystemTab pattern)
   return (
     <ScrollArea className="flex-1">
-      <div className="p-4 space-y-4">
-        {/* Navigation Section */}
-        <div className="border border-border rounded-lg overflow-hidden bg-background">
-          <button 
-            className="w-full px-4 py-3 flex items-center justify-between hover:bg-muted/50 transition-colors"
-            onClick={() => setNavExpanded(!navExpanded)}
+      <div className="p-0">
+        {/* Navigation Accordion Section */}
+        <div className="border-b border-border">
+          <button
+            onClick={() => toggleSection('navigation')}
+            className="w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
           >
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-lg text-muted-foreground">menu</span>
-              <span className="font-semibold text-slate-900">Navigation</span>
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-xl text-muted-foreground">menu</span>
+              <span className="font-medium text-slate-900">Navigation</span>
             </div>
-            <div className="flex items-center gap-2">
-              {!navExpanded && (
+            <div className="flex items-center gap-3">
+              {openSection !== 'navigation' && (
                 <span className="text-sm text-muted-foreground">{getNavSummary()}</span>
               )}
-              <ChevronDown className={cn('h-4 w-4 text-muted-foreground transition-transform', navExpanded && 'rotate-180')} />
+              <ChevronDown className={cn('h-4 w-4 text-muted-foreground transition-transform', openSection === 'navigation' && 'rotate-180')} />
             </div>
           </button>
           
-          {navExpanded && (
-            <div className="px-4 pb-4 space-y-4 border-t border-border">
-              <div className="pt-4">
-                <label className="text-xs font-medium text-muted-foreground mb-2 block">Layout</label>
-                <select 
-                  value={navigation.layout}
-                  onChange={(e) => onNavigationChange({ ...navigation, layout: e.target.value as any })}
-                  className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background"
-                >
-                  {navigationLayoutOptions.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-2 block">Position</label>
-                <select 
-                  value={navigation.position}
-                  onChange={(e) => onNavigationChange({ ...navigation, position: e.target.value as any })}
-                  className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background"
-                >
-                  {navigationPositionOptions.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-2 block">Background</label>
-                <select 
-                  value={navigation.background}
-                  onChange={(e) => onNavigationChange({ ...navigation, background: e.target.value as any })}
-                  className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background"
-                >
-                  {navigationBackgroundOptions.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-2 block">Mobile</label>
-                <select 
-                  value={navigation.mobile}
-                  onChange={(e) => onNavigationChange({ ...navigation, mobile: e.target.value as any })}
-                  className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background"
-                >
-                  {navigationMobileOptions.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
+          <div className={cn('accordion-content-animated', openSection === 'navigation' && 'expanded')}>
+            <div>
+              <div className="px-5 pb-5 space-y-4">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-2 block">Layout</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {navigationLayoutOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => onNavigationChange({ ...navigation, layout: opt.value as any })}
+                        className={cn(
+                          'p-3 rounded-lg border-2 text-left transition-all',
+                          navigation.layout === opt.value
+                            ? 'border-primary bg-primary/5'
+                            : 'border-gray-200 hover:border-gray-300'
+                        )}
+                      >
+                        <span className="font-medium text-sm text-slate-900">{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-2 block">Position</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {navigationPositionOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => onNavigationChange({ ...navigation, position: opt.value as any })}
+                        className={cn(
+                          'p-2 rounded-lg border-2 text-center transition-all',
+                          navigation.position === opt.value
+                            ? 'border-primary bg-primary/5'
+                            : 'border-gray-200 hover:border-gray-300'
+                        )}
+                      >
+                        <span className="font-medium text-sm text-slate-900">{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-2 block">Background</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {navigationBackgroundOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => onNavigationChange({ ...navigation, background: opt.value as any })}
+                        className={cn(
+                          'p-2 rounded-lg border-2 text-center transition-all',
+                          navigation.background === opt.value
+                            ? 'border-primary bg-primary/5'
+                            : 'border-gray-200 hover:border-gray-300'
+                        )}
+                      >
+                        <span className="font-medium text-sm text-slate-900">{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-2 block">Mobile</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {navigationMobileOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => onNavigationChange({ ...navigation, mobile: opt.value as any })}
+                        className={cn(
+                          'p-2 rounded-lg border-2 text-center transition-all',
+                          navigation.mobile === opt.value
+                            ? 'border-primary bg-primary/5'
+                            : 'border-gray-200 hover:border-gray-300'
+                        )}
+                      >
+                        <span className="font-medium text-sm text-slate-900">{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Pages List */}
-        <div className="space-y-2">
-          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-1">Pages</h3>
+        {/* Pages List - Each page is an accordion item */}
+        {pages.map((page) => {
+          const isOpen = expandedPage === page.id;
           
-          {pages.map((page) => (
-            <div key={page.id} className="border border-border rounded-lg overflow-hidden bg-background">
-              <button 
-                className="w-full px-4 py-3 flex items-center justify-between hover:bg-muted/50 transition-colors"
+          return (
+            <div key={page.id} className="border-b border-border">
+              <button
                 onClick={() => togglePage(page.id)}
+                className="w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
               >
-                <div className="flex items-center gap-2">
-                  {expandedPage === page.id ? (
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  )}
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-xl text-muted-foreground">article</span>
                   <span className="font-medium text-slate-900">{page.name}</span>
                 </div>
-                <span className="text-xs text-muted-foreground">
-                  {getPageProgress(page)}
-                </span>
+                <div className="flex items-center gap-3">
+                  {!isOpen && (
+                    <span className="text-sm text-muted-foreground">{getPageProgress(page)}</span>
+                  )}
+                  <ChevronDown className={cn('h-4 w-4 text-muted-foreground transition-transform', isOpen && 'rotate-180')} />
+                </div>
               </button>
               
-              {expandedPage === page.id && (
-                <div className="border-t border-border bg-muted/30">
-                  {page.sections.map((section) => (
-                    <button
-                      key={section.id}
-                      className="w-full px-4 py-2.5 flex items-center justify-between hover:bg-muted/50 border-b border-border/50 last:border-0 transition-colors"
-                      onClick={() => openSectionConfig(page, section)}
-                    >
-                      <span className="text-sm text-slate-700 pl-6">{section.name}</span>
-                      <span className={cn(
-                        'material-symbols-outlined text-base',
-                        section.configured ? 'text-green-500' : 'text-muted-foreground/30'
-                      )}>
-                        {section.configured ? 'check_circle' : 'radio_button_unchecked'}
-                      </span>
-                    </button>
-                  ))}
+              <div className={cn('accordion-content-animated', isOpen && 'expanded')}>
+                <div>
+                  <div className="px-5 pb-4">
+                    <div className="text-xs text-muted-foreground mb-3">
+                      {page.sections.filter(s => s.configured).length} of {page.sections.length} sections configured
+                    </div>
+                    <div className="space-y-1">
+                      {page.sections.map((section) => (
+                        <button
+                          key={section.id}
+                          className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-muted/50 rounded-lg transition-colors"
+                          onClick={() => openSectionConfig(page, section)}
+                        >
+                          <span className="text-sm text-slate-700">{section.name}</span>
+                          <span className={cn(
+                            'material-symbols-outlined text-base',
+                            section.configured ? 'text-green-500' : 'text-muted-foreground/30'
+                          )}>
+                            {section.configured ? 'check_circle' : 'radio_button_unchecked'}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
     </ScrollArea>
   );
