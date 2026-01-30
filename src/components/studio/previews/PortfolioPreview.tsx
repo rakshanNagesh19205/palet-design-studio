@@ -1,6 +1,6 @@
 import { TemplatePreviewProps, PreviewHeader, PreviewFooter, PreviewButton, PreviewCard, getBorderRadius } from './shared';
 
-export function PortfolioPreview({ page, config, style }: TemplatePreviewProps) {
+export function PortfolioPreview({ page, config, style, navigation, pages }: TemplatePreviewProps) {
   const font = config.typography?.fontFamily || 'Inter';
   
   return (
@@ -16,6 +16,7 @@ export function PortfolioPreview({ page, config, style }: TemplatePreviewProps) 
         style={style} 
         brandName="Alex Chen" 
         navItems={['Home', 'Work', 'About', 'Contact']}
+        navigation={navigation}
       />
       
       <main className="flex-1 p-8">

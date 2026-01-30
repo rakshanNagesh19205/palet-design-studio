@@ -1,6 +1,6 @@
 import { TemplatePreviewProps, PreviewHeader, PreviewFooter, PreviewButton, PreviewCard, getBorderRadius, getShadow } from './shared';
 
-export function EcommercePreview({ page, config, style }: TemplatePreviewProps) {
+export function EcommercePreview({ page, config, style, navigation, pages }: TemplatePreviewProps) {
   const font = config.typography?.fontFamily || 'Inter';
   
   const products = [
@@ -23,6 +23,7 @@ export function EcommercePreview({ page, config, style }: TemplatePreviewProps) 
         style={style} 
         brandName="MINIMAL" 
         navItems={['Shop', 'Collections', 'About', 'Cart (2)']}
+        navigation={navigation}
       />
       
       <main className="flex-1 p-8">

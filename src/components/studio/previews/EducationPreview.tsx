@@ -1,6 +1,6 @@
 import { TemplatePreviewProps, PreviewHeader, PreviewFooter, PreviewButton, PreviewCard, getBorderRadius } from './shared';
 
-export function EducationPreview({ page, config, style }: TemplatePreviewProps) {
+export function EducationPreview({ page, config, style, navigation, pages }: TemplatePreviewProps) {
   const font = config.typography?.fontFamily || 'Inter';
   
   const courses = [
@@ -22,6 +22,7 @@ export function EducationPreview({ page, config, style }: TemplatePreviewProps) 
         style={style} 
         brandName="LearnHub" 
         navItems={['Courses', 'Paths', 'About', 'Sign In']}
+        navigation={navigation}
       />
       
       <main className="flex-1 p-8">

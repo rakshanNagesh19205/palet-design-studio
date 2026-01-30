@@ -1,6 +1,6 @@
 import { TemplatePreviewProps, PreviewHeader, PreviewFooter, PreviewButton, PreviewCard, getBorderRadius } from './shared';
 
-export function NonprofitPreview({ page, config, style }: TemplatePreviewProps) {
+export function NonprofitPreview({ page, config, style, navigation, pages }: TemplatePreviewProps) {
   const font = config.typography?.fontFamily || 'Inter';
   
   const programs = [
@@ -22,6 +22,7 @@ export function NonprofitPreview({ page, config, style }: TemplatePreviewProps) 
         style={style} 
         brandName="Hope Foundation" 
         navItems={['Mission', 'Programs', 'Impact', 'Donate']}
+        navigation={navigation}
       />
       
       <main className="flex-1 p-8">

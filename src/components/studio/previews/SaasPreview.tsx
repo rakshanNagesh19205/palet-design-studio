@@ -1,6 +1,6 @@
 import { TemplatePreviewProps, PreviewHeader, PreviewFooter, PreviewButton, PreviewCard, getBorderRadius, getShadow } from './shared';
 
-export function SaasPreview({ page, config, style }: TemplatePreviewProps) {
+export function SaasPreview({ page, config, style, navigation, pages }: TemplatePreviewProps) {
   const font = config.typography?.fontFamily || 'Inter';
   
   return (
@@ -16,6 +16,7 @@ export function SaasPreview({ page, config, style }: TemplatePreviewProps) {
         style={style} 
         brandName="LaunchPad" 
         navItems={['Home', 'Features', 'Pricing', 'Contact']}
+        navigation={navigation}
       />
       
       <main className="flex-1 p-8">

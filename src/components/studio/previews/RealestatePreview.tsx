@@ -1,6 +1,6 @@
 import { TemplatePreviewProps, PreviewHeader, PreviewFooter, PreviewButton, PreviewCard, getBorderRadius } from './shared';
 
-export function RealestatePreview({ page, config, style }: TemplatePreviewProps) {
+export function RealestatePreview({ page, config, style, navigation, pages }: TemplatePreviewProps) {
   const font = config.typography?.fontFamily || 'Inter';
   
   const properties = [
@@ -22,6 +22,7 @@ export function RealestatePreview({ page, config, style }: TemplatePreviewProps)
         style={style} 
         brandName="HomeFind" 
         navItems={['Buy', 'Rent', 'Sell', 'Contact']}
+        navigation={navigation}
       />
       
       <main className="flex-1 p-8">

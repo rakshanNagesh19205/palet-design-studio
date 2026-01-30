@@ -1,6 +1,7 @@
 import { ProjectConfig } from '@/types/database';
 import { PageType } from '@/lib/templatePages';
 import { StylePreset, getStylePreset } from '@/lib/stylePresets';
+import { NavigationConfig, PageConfig } from '@/types/studio';
 
 // Import all template previews
 import { SaasPreview } from './SaasPreview';
@@ -21,6 +22,8 @@ interface TemplatePreviewProps {
   page: PageType;
   config: ProjectConfig;
   darkMode?: boolean;
+  navigation?: NavigationConfig;
+  pages?: PageConfig[];
 }
 
 // Map template IDs to preview components
@@ -29,6 +32,8 @@ const templateComponents: Record<string, React.ComponentType<{
   config: ProjectConfig;
   style: StylePreset;
   darkMode?: boolean;
+  navigation?: NavigationConfig;
+  pages?: PageConfig[];
 }>> = {
   saas: SaasPreview,
   portfolio: PortfolioPreview,
@@ -87,6 +92,8 @@ export function TemplatePreview({
   page, 
   config,
   darkMode = false,
+  navigation,
+  pages,
 }: TemplatePreviewProps) {
   // Get the base style preset
   const baseStylePreset = getStylePreset(styleId);
@@ -113,6 +120,8 @@ export function TemplatePreview({
         config={config} 
         style={stylePreset} 
         darkMode={darkMode}
+        navigation={navigation}
+        pages={pages}
       />
     );
   }
@@ -123,6 +132,8 @@ export function TemplatePreview({
       config={config} 
       style={stylePreset}
       darkMode={darkMode}
+      navigation={navigation}
+      pages={pages}
     />
   );
 }

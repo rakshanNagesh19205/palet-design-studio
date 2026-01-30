@@ -1,6 +1,6 @@
 import { TemplatePreviewProps, PreviewHeader, PreviewFooter, PreviewButton, PreviewCard, getBorderRadius } from './shared';
 
-export function BlogPreview({ page, config, style }: TemplatePreviewProps) {
+export function BlogPreview({ page, config, style, navigation, pages }: TemplatePreviewProps) {
   const font = config.typography?.fontFamily || 'Inter';
   
   const articles = [
@@ -22,6 +22,7 @@ export function BlogPreview({ page, config, style }: TemplatePreviewProps) {
         style={style} 
         brandName="The Journal" 
         navItems={['Articles', 'Topics', 'About', 'Subscribe']}
+        navigation={navigation}
       />
       
       <main className="flex-1 p-8">
