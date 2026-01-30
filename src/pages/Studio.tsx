@@ -302,7 +302,7 @@ const Studio = () => {
         </main>
 
         {/* RIGHT Panel - Configuration (now on the right, 480px) */}
-        <aside className="w-[480px] border-l border-border bg-white flex flex-col">
+        <aside className="w-[520px] border-l border-border bg-white flex flex-col">
           {/* Tab Switcher */}
           <div className="flex border-b border-border shrink-0">
             <button 
@@ -346,6 +346,7 @@ const Studio = () => {
               onSectionChange={handleSectionChange}
               onActiveChange={setActiveSection}
               activeSection={activeSection}
+              onPageSelect={(pageId) => setCurrentPage(pageId)}
             />
           )}
         </aside>
