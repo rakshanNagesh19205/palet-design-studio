@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ProjectConfig } from '@/types/database';
 import { NavigationConfig, PageConfig } from '@/types/studio';
-import { Check, Copy, Download, Save, Lock } from 'lucide-react';
+import { Check, Copy, Download, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ExportModalProps {
@@ -23,7 +23,7 @@ interface ExportModalProps {
   pages?: PageConfig[];
 }
 
-const proFormats = ['Claude Skill', 'Cursor Rules', 'Custom GPT', 'JSON Tokens', 'Tailwind Config'];
+
 
 export const ExportModal = ({
   open,
@@ -286,27 +286,6 @@ ${componentsMarkdown}
             </Button>
           </div>
           
-          {/* Pro Formats */}
-          <div className="pt-4 border-t border-border">
-            <div className="flex items-center gap-2 mb-3">
-              <Lock className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-muted-foreground">Pro Export Formats</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {proFormats.map((format) => (
-                <button 
-                  key={format}
-                  className="px-3 py-1.5 bg-muted text-muted-foreground text-sm rounded-lg cursor-not-allowed"
-                  disabled
-                >
-                  {format}
-                </button>
-              ))}
-            </div>
-            <p className="text-xs text-muted-foreground mt-3">
-              Unlock all export formats with Pro — $12/month
-            </p>
-          </div>
         </div>
       </DialogContent>
     </Dialog>
