@@ -3,14 +3,16 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useProject } from '@/hooks/useProjects';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { ProjectConfig } from '@/types/database';
+import { NavigationConfig, PageConfig, SectionConfig, ActiveSection, StudioTab } from '@/types/studio';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { History, Bookmark, Download, Check, Loader2, ChevronDown, Monitor, Tablet, Smartphone, ZoomIn, Moon, Sun } from 'lucide-react';
+import { History, Bookmark, Download, Check, Loader2, Monitor, Tablet, Smartphone, ZoomIn, Moon, Sun } from 'lucide-react';
 import { TemplatePreview } from '@/components/studio/previews/TemplatePreview';
 import { ExportModal } from '@/components/studio/ExportModal';
+import { DesignSystemTab, SiteStructureTab } from '@/components/studio/tabs';
 import { getTemplatePages, PageType } from '@/lib/templatePages';
-import { getStylePreset, applyStyleToConfig } from '@/lib/stylePresets';
+import { getStylePreset } from '@/lib/stylePresets';
+import { getDefaultSiteStructure } from '@/lib/sectionDefinitions';
 
 const defaultConfig: ProjectConfig = {
   colors: { primary: 'hsl(356, 81%, 54%)', accent: 'hsl(173, 80%, 40%)' },
@@ -24,54 +26,29 @@ const defaultConfig: ProjectConfig = {
   motion: { enabled: true, duration: 'normal', easing: 'ease' },
 };
 
-const sections = [
-  { id: 'colors', name: 'Colors', icon: 'palette' },
-  { id: 'typography', name: 'Typography', icon: 'text_fields' },
-  { id: 'spacing', name: 'Spacing', icon: 'space_bar' },
-  { id: 'borders', name: 'Border Radius', icon: 'rounded_corner' },
-  { id: 'shadows', name: 'Shadows', icon: 'blur_on' },
-  { id: 'buttons', name: 'Buttons', icon: 'smart_button' },
-  { id: 'forms', name: 'Forms', icon: 'input' },
-  { id: 'cards', name: 'Cards', icon: 'dashboard' },
-  { id: 'navigation', name: 'Navigation', icon: 'menu' },
-  { id: 'motion', name: 'Motion', icon: 'animation' },
-];
-
-const colorOptions = [
-  { name: 'Teal', value: 'hsl(173, 80%, 40%)', micro: 'Fresh & modern' },
-  { name: 'Peach', value: 'hsl(24, 95%, 53%)', micro: 'Warm & inviting' },
-  { name: 'Mint', value: 'hsl(158, 64%, 52%)', micro: 'Clean & natural' },
-  { name: 'Slate', value: 'hsl(215, 20%, 65%)', micro: 'Calm & neutral' },
-];
-
-const typographyOptions = [
-  { name: 'DM Sans', value: 'DM Sans', micro: 'Geometric & modern' },
-  { name: 'Inter', value: 'Inter', micro: 'Clean & versatile' },
-  { name: 'Quicksand', value: 'Quicksand', micro: 'Friendly & rounded' },
-  { name: 'Public Sans', value: 'Public Sans', micro: 'Strong & neutral' },
-];
-
-const radiusOptions = [
-  { name: 'Rounded', value: 'lg', micro: '12px corners' },
-  { name: 'Moderate', value: 'md', micro: '8px corners' },
-  { name: 'Pill', value: 'full', micro: 'Fully rounded' },
-  { name: 'Sharp', value: 'none', micro: '0px corners' },
-];
-
-const shadowOptions = [
-  { name: 'None', value: 'none', micro: 'Flat design' },
-  { name: 'Subtle', value: 'subtle', micro: 'Soft depth' },
-  { name: 'Medium', value: 'medium', micro: 'Balanced' },
-  { name: 'Dramatic', value: 'dramatic', micro: 'Bold elevation' },
-];
-
 const Studio = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const { data: project, isLoading, error } = useProject(projectId);
   
+  // Design System state
   const [config, setConfig] = useState<ProjectConfig>(defaultConfig);
   const [openSection, setOpenSection] = useState<string>('colors');
+  
+  // Site Structure state
+  const [navigation, setNavigation] = useState<NavigationConfig>({
+    layout: 'logo-left',
+    position: 'sticky',
+    background: 'solid',
+    mobile: 'hamburger',
+  });
+  const [pages, setPages] = useState<PageConfig[]>([]);
+  const [activeSection, setActiveSection] = useState<ActiveSection | null>(null);
+  
+  // Tab state
+  const [activeTab, setActiveTab] = useState<StudioTab>('design');
+  
+  // Preview state
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [previewDark, setPreviewDark] = useState(false);
   const [currentPage, setCurrentPage] = useState<PageType>('home');
@@ -103,6 +80,11 @@ const Studio = () => {
       };
       
       setConfig(mergedConfig);
+      
+      // Initialize site structure
+      const siteStructure = getDefaultSiteStructure(project.template);
+      setNavigation(siteStructure.navigation);
+      setPages(siteStructure.pages);
     }
   }, [project]);
 
@@ -114,8 +96,25 @@ const Studio = () => {
     setOpenSection(openSection === sectionId ? '' : sectionId);
   };
 
-  // Get pages for the current template
-  const pages = getTemplatePages(project?.template);
+  const handleSectionChange = (pageId: string, sectionId: string, updates: Partial<SectionConfig>) => {
+    setPages(prevPages => 
+      prevPages.map(page => 
+        page.id === pageId 
+          ? {
+              ...page,
+              sections: page.sections.map(section =>
+                section.id === sectionId
+                  ? { ...section, ...updates, configured: true }
+                  : section
+              ),
+            }
+          : page
+      )
+    );
+  };
+
+  // Get pages for the current template (for preview navigation)
+  const templatePages = getTemplatePages(project?.template);
 
   if (isLoading) {
     return (
@@ -135,25 +134,6 @@ const Studio = () => {
       </div>
     );
   }
-
-  const getSelectedOption = (sectionId: string) => {
-    switch (sectionId) {
-      case 'colors':
-        const colorOpt = colorOptions.find(o => o.value === config.colors?.accent);
-        return colorOpt ? { name: colorOpt.name, micro: colorOpt.micro, color: colorOpt.value } : null;
-      case 'typography':
-        const typoOpt = typographyOptions.find(o => o.value === config.typography?.fontFamily);
-        return typoOpt ? { name: typoOpt.name, micro: typoOpt.micro } : null;
-      case 'borders':
-        const radiusOpt = radiusOptions.find(o => o.value === config.borders?.radius);
-        return radiusOpt ? { name: radiusOpt.name, micro: radiusOpt.micro } : null;
-      case 'shadows':
-        const shadowOpt = shadowOptions.find(o => o.value === config.shadows?.intensity);
-        return shadowOpt ? { name: shadowOpt.name, micro: shadowOpt.micro } : null;
-      default:
-        return null;
-    }
-  };
 
   return (
     <div className="flex h-screen flex-col bg-background">
@@ -219,149 +199,7 @@ const Studio = () => {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Panel - Configuration */}
-        <aside className="w-[480px] border-r border-border bg-white flex flex-col">
-          <ScrollArea className="flex-1">
-            <div className="p-0">
-              {sections.map((section) => {
-                const isOpen = openSection === section.id;
-                const selected = getSelectedOption(section.id);
-                
-                return (
-                  <div key={section.id} className="border-b border-border">
-                    {/* Section Header */}
-                    <button
-                      onClick={() => toggleSection(section.id)}
-                      className="w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="material-symbols-outlined text-xl text-muted-foreground">{section.icon}</span>
-                        <span className="font-medium text-slate-900">{section.name}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {!isOpen && selected && (
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            {selected.color && (
-                              <div className="w-4 h-4 rounded-full border border-gray-200" style={{ backgroundColor: selected.color }} />
-                            )}
-                            <span>{selected.name}</span>
-                            <span className="text-gray-400">·</span>
-                            <span className="text-gray-400">{selected.micro}</span>
-                          </div>
-                        )}
-                        <ChevronDown className={cn('h-4 w-4 text-muted-foreground transition-transform', isOpen && 'rotate-180')} />
-                      </div>
-                    </button>
-                    
-                    {/* Section Content */}
-                    <div className={cn('accordion-content-animated', isOpen && 'expanded')}>
-                      <div>
-                        <div className="px-5 pb-5">
-                          {/* Recommended label */}
-                          <div className="text-xs text-muted-foreground mb-3">
-                            Recommended for <span className="capitalize">{project.style || 'your style'}</span>
-                          </div>
-                          
-                          {/* Options Grid */}
-                          {section.id === 'colors' && (
-                            <div className="grid grid-cols-2 gap-3">
-                              {colorOptions.map((option) => (
-                                <button
-                                  key={option.value}
-                                  onClick={() => updateConfig('colors', { ...config.colors, accent: option.value })}
-                                  className={cn(
-                                    'p-3 rounded-lg border-2 text-left transition-all',
-                                    config.colors?.accent === option.value
-                                      ? 'border-primary bg-primary/5'
-                                      : 'border-gray-200 hover:border-gray-300'
-                                  )}
-                                >
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <div className="w-5 h-5 rounded-full" style={{ backgroundColor: option.value }} />
-                                    <span className="font-medium text-sm text-slate-900">{option.name}</span>
-                                  </div>
-                                  <p className="text-xs text-muted-foreground">{option.micro}</p>
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                          
-                          {section.id === 'typography' && (
-                            <div className="grid grid-cols-2 gap-3">
-                              {typographyOptions.map((option) => (
-                                <button
-                                  key={option.value}
-                                  onClick={() => updateConfig('typography', { ...config.typography, fontFamily: option.value })}
-                                  className={cn(
-                                    'p-3 rounded-lg border-2 text-left transition-all',
-                                    config.typography?.fontFamily === option.value
-                                      ? 'border-primary bg-primary/5'
-                                      : 'border-gray-200 hover:border-gray-300'
-                                  )}
-                                >
-                                  <span className="font-medium text-sm text-slate-900" style={{ fontFamily: option.value }}>{option.name}</span>
-                                  <p className="text-xs text-muted-foreground mt-1">{option.micro}</p>
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                          
-                          {section.id === 'borders' && (
-                            <div className="grid grid-cols-2 gap-3">
-                              {radiusOptions.map((option) => (
-                                <button
-                                  key={option.value}
-                                  onClick={() => updateConfig('borders', { radius: option.value as 'lg' | 'md' | 'full' | 'none' })}
-                                  className={cn(
-                                    'p-3 rounded-lg border-2 text-left transition-all',
-                                    config.borders?.radius === option.value
-                                      ? 'border-primary bg-primary/5'
-                                      : 'border-gray-200 hover:border-gray-300'
-                                  )}
-                                >
-                                  <span className="font-medium text-sm text-slate-900">{option.name}</span>
-                                  <p className="text-xs text-muted-foreground mt-1">{option.micro}</p>
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                          
-                          {section.id === 'shadows' && (
-                            <div className="grid grid-cols-2 gap-3">
-                              {shadowOptions.map((option) => (
-                                <button
-                                  key={option.value}
-                                  onClick={() => updateConfig('shadows', { intensity: option.value as 'none' | 'subtle' | 'medium' | 'dramatic' })}
-                                  className={cn(
-                                    'p-3 rounded-lg border-2 text-left transition-all',
-                                    config.shadows?.intensity === option.value
-                                      ? 'border-primary bg-primary/5'
-                                      : 'border-gray-200 hover:border-gray-300'
-                                  )}
-                                >
-                                  <span className="font-medium text-sm text-slate-900">{option.name}</span>
-                                  <p className="text-xs text-muted-foreground mt-1">{option.micro}</p>
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                          
-                          {!['colors', 'typography', 'borders', 'shadows'].includes(section.id) && (
-                            <div className="text-sm text-muted-foreground">
-                              Configuration options coming soon...
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </ScrollArea>
-        </aside>
-
-        {/* Right Panel - Preview */}
+        {/* LEFT Panel - Preview (now on the left) */}
         <main className="flex-1 flex flex-col bg-[#1a1215]">
           {/* Preview Controls */}
           <div className="shrink-0 border-b border-white/10 bg-black/20 px-4 py-2 flex items-center justify-between">
@@ -390,7 +228,7 @@ const Studio = () => {
               
               {/* Page navigation */}
               <div className="flex items-center gap-1 border-l border-white/10 pl-4">
-                {pages.map((page) => (
+                {templatePages.map((page) => (
                   <button
                     key={page.id}
                     onClick={() => setCurrentPage(page.id)}
@@ -460,6 +298,55 @@ const Studio = () => {
             Click page tabs above to navigate · Changes auto-save
           </div>
         </main>
+
+        {/* RIGHT Panel - Configuration (now on the right, 480px) */}
+        <aside className="w-[480px] border-l border-border bg-white flex flex-col">
+          {/* Tab Switcher */}
+          <div className="flex border-b border-border shrink-0">
+            <button 
+              className={cn(
+                'flex-1 py-3 text-sm font-semibold transition-colors',
+                activeTab === 'design' 
+                  ? 'border-b-2 border-primary text-primary' 
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+              onClick={() => setActiveTab('design')}
+            >
+              Design System
+            </button>
+            <button 
+              className={cn(
+                'flex-1 py-3 text-sm font-semibold transition-colors',
+                activeTab === 'structure' 
+                  ? 'border-b-2 border-primary text-primary' 
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+              onClick={() => setActiveTab('structure')}
+            >
+              Site Structure
+            </button>
+          </div>
+
+          {/* Tab Content */}
+          {activeTab === 'design' ? (
+            <DesignSystemTab
+              config={config}
+              updateConfig={updateConfig}
+              openSection={openSection}
+              toggleSection={toggleSection}
+              projectStyle={project.style}
+            />
+          ) : (
+            <SiteStructureTab
+              navigation={navigation}
+              pages={pages}
+              onNavigationChange={setNavigation}
+              onSectionChange={handleSectionChange}
+              onActiveChange={setActiveSection}
+              activeSection={activeSection}
+            />
+          )}
+        </aside>
       </div>
 
       <ExportModal
@@ -469,6 +356,8 @@ const Studio = () => {
         projectName={project.name}
         template={project.template}
         style={project.style}
+        navigation={navigation}
+        pages={pages}
       />
     </div>
   );
