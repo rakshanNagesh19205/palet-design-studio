@@ -1,7 +1,7 @@
 // Export page state types
 
 export type PageTab = 'home' | 'features' | 'pricing' | 'about' | 'contact' | 'components';
-export type AccordionSection = 'curated' | 'customize' | 'discover';
+export type AccordionSection = 'curated' | 'customize';
 export type DeviceSize = 'mobile' | 'tablet' | 'desktop';
 export type Density = 'compact' | 'balanced' | 'spacious';
 export type Mood = 'serious' | 'neutral' | 'friendly';

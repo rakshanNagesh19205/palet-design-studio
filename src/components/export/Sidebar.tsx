@@ -1,9 +1,7 @@
-import { ChevronDown } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { CuratedSetsPanel } from './CuratedSetsPanel';
 import { CustomizePanel } from './CustomizePanel';
-import { DiscoverPanel } from './DiscoverPanel';
-import type { AccordionSection, ExportPageState, LockStates, Density, Mood, ButtonStyle, CardStyle, InputStyle, NavStyle, ModalStyle } from '@/types/export';
+import type { AccordionSection, ExportPageState, LockStates } from '@/types/export';
 
 interface SidebarProps {
   activeAccordion: AccordionSection;
@@ -44,7 +42,7 @@ export const Sidebar = ({
           </AccordionContent>
         </AccordionItem>
 
-        <AccordionItem value="customize" className="border-b">
+        <AccordionItem value="customize" className="border-0">
           <AccordionTrigger className="px-4 py-3 hover:no-underline">
             <span className="text-sm font-semibold">Customize</span>
           </AccordionTrigger>
@@ -59,6 +57,7 @@ export const Sidebar = ({
               inputStyle={state.inputStyle}
               navStyle={state.navStyle}
               modalStyle={state.modalStyle}
+              locks={state.locks}
               onBrandColorChange={(v) => onStateChange('brandColor', v)}
               onFontChange={(v) => onStateChange('font', v)}
               onDensityChange={(v) => onStateChange('density', v)}
@@ -68,17 +67,6 @@ export const Sidebar = ({
               onInputStyleChange={(v) => onStateChange('inputStyle', v)}
               onNavStyleChange={(v) => onStateChange('navStyle', v)}
               onModalStyleChange={(v) => onStateChange('modalStyle', v)}
-            />
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="discover" className="border-0">
-          <AccordionTrigger className="px-4 py-3 hover:no-underline">
-            <span className="text-sm font-semibold">Discover</span>
-          </AccordionTrigger>
-          <AccordionContent className="p-0">
-            <DiscoverPanel
-              locks={state.locks}
               onToggleLock={handleToggleLock}
               onRandomize={onRandomize}
             />
