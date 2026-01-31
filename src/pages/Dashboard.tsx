@@ -288,7 +288,7 @@ const Dashboard = () => {
               <div
                 key={project.id}
                 className="project-card group bg-white rounded-xl border border-gray-200 overflow-hidden cursor-pointer"
-                onClick={() => navigate(`/studio/${project.id}`)}
+                onClick={() => navigate(`/export?template=${project.template || 'saas'}&style=${project.style || 'swiss'}&project=${project.id}`)}
               >
                 {/* Thumbnail */}
                 <div className={cn(
@@ -332,7 +332,7 @@ const Dashboard = () => {
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-40">
-                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/studio/${project.id}`); }} className="gap-2">
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/export?template=${project.template || 'saas'}&style=${project.style || 'swiss'}&project=${project.id}`); }} className="gap-2">
                         <Edit3 className="h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
