@@ -5,7 +5,7 @@ import { BottomActionBar } from '@/components/layout/BottomActionBar';
 import { StyleCard } from '@/components/styles/StyleCard';
 import { styles } from '@/data/styles';
 import { templates } from '@/data/templates';
-import { useUpdateProject, useCreateProject } from '@/hooks/useProjects';
+import { useUpdateProject } from '@/hooks/useProjects';
 import { useToast } from '@/hooks/use-toast';
 
 const StyleSelection = () => {
@@ -15,7 +15,6 @@ const StyleSelection = () => {
   const projectId = searchParams.get('project');
   const templateId = searchParams.get('template');
   const updateProject = useUpdateProject();
-  const createProject = useCreateProject();
   const { toast } = useToast();
 
   // Get template info for breadcrumb
@@ -37,16 +36,9 @@ const StyleSelection = () => {
           id: projectId,
           style: selectedStyle,
         });
-        navigate(`/studio/${projectId}`);
-      } else if (templateId) {
-        // Create a new project with the template and style
-        const project = await createProject.mutateAsync({
-          name: `${currentTemplate?.name || 'New'} Project`,
-          template: templateId,
-          style: selectedStyle,
-        });
-        navigate(`/studio/${project.id}`);
       }
+      // Navigate to export page with template and style
+      navigate(`/export?template=${templateId}&style=${selectedStyle}`);
     } catch (err) {
       toast({
         title: 'Error',
@@ -69,7 +61,7 @@ const StyleSelection = () => {
             <span>/</span>
             <span className="text-primary font-medium">Style</span>
             <span>/</span>
-            <span>Studio</span>
+            <span>Export</span>
           </div>
         )}
         
@@ -98,7 +90,7 @@ const StyleSelection = () => {
       <BottomActionBar
         onBack={() => navigate(projectId ? `/create/template?project=${projectId}` : '/create/template')}
         onContinue={handleContinue}
-        continueLabel="Continue to Studio"
+        continueLabel="Continue to Export"
         continueDisabled={!selectedStyle}
       />
     </div>

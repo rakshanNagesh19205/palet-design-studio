@@ -13,7 +13,7 @@ import Auth from "./pages/auth/Auth";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import TemplateSelection from "./pages/create/TemplateSelection";
 import StyleSelection from "./pages/create/StyleSelection";
-import Studio from "./pages/Studio";
+import ExportPage from "./pages/ExportPage";
 import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
@@ -61,15 +61,10 @@ const App = () => (
               </ProtectedRoute>
             } />
             
-            {/* Protected: Studio */}
-            <Route path="/studio" element={
+            {/* Protected: Export Page (replaces Studio) */}
+            <Route path="/export" element={
               <ProtectedRoute>
-                <Studio />
-              </ProtectedRoute>
-            } />
-            <Route path="/studio/:projectId" element={
-              <ProtectedRoute>
-                <Studio />
+                <ExportPage />
               </ProtectedRoute>
             } />
             
