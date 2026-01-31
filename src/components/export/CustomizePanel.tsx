@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Dices, Lock, Unlock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { ColorPicker } from '@/components/ui/color-picker';
 import {
@@ -114,22 +115,31 @@ export const CustomizePanel = ({
   return (
     <div className="p-4 space-y-6">
       {/* Randomize Button */}
-      <Button 
-        onClick={handleRandomize}
-        variant="outline"
-        className={cn(
-          'w-full gap-2',
-          isRandomizing && 'animate-[bounce-subtle_0.5s_ease-out]'
-        )}
-        size="lg"
-        disabled={isRandomizing}
-      >
-        <Dices className={cn(
-          'h-4 w-4',
-          isRandomizing && 'animate-[spin_0.6s_ease-in-out]'
-        )} />
-        {isRandomizing ? 'Shuffling...' : 'Shuffle'}
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              onClick={handleRandomize}
+              variant="outline"
+              className={cn(
+                'w-full gap-2',
+                isRandomizing && 'animate-[bounce-subtle_0.5s_ease-out]'
+              )}
+              size="lg"
+              disabled={isRandomizing}
+            >
+              <Dices className={cn(
+                'h-4 w-4',
+                isRandomizing && 'animate-[spin_0.6s_ease-in-out]'
+              )} />
+              {isRandomizing ? 'Shuffling...' : 'Shuffle'}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Locked settings won't change</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       {/* Brand Section */}
       <div className="space-y-3">
