@@ -25,11 +25,11 @@ export const SegmentedControl = ({
           key={option.value}
           onClick={() => onChange(option.value)}
           className={cn(
-            'rounded-full font-medium transition-all',
+            'rounded-full font-medium transition-all duration-200 ease-out',
             size === 'sm' ? 'px-2.5 py-1 text-xs' : 'px-3 py-1.5 text-sm',
             value === option.value
               ? 'bg-background text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
+              : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
           )}
         >
           {option.label}
