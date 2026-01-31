@@ -1,8 +1,8 @@
-import { Dices } from 'lucide-react';
+import { useState } from 'react';
+import { Dices, Lock, Unlock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { ColorPicker } from '@/components/ui/color-picker';
-import { LockToggle } from '@/components/ui/lock-toggle';
 import {
   Select,
   SelectContent,
@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import { 
   FONT_OPTIONS, 
   type Density, 
@@ -46,6 +47,38 @@ interface CustomizePanelProps {
   onRandomize: () => void;
 }
 
+interface SettingRowProps {
+  label: string;
+  lockKey: keyof LockStates;
+  locked: boolean;
+  onToggleLock: (key: keyof LockStates) => void;
+  children: React.ReactNode;
+}
+
+const SettingRow = ({ label, lockKey, locked, onToggleLock, children }: SettingRowProps) => (
+  <div className={cn(
+    'flex items-center gap-3 transition-opacity duration-200',
+    locked && 'opacity-40'
+  )}>
+    <button
+      onClick={() => onToggleLock(lockKey)}
+      className={cn(
+        'p-1.5 rounded-md transition-colors shrink-0',
+        locked 
+          ? 'text-primary bg-primary/10' 
+          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+      )}
+      title={locked ? 'Unlock to randomize' : 'Lock to keep value'}
+    >
+      {locked ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
+    </button>
+    <span className="text-sm min-w-[70px]">{label}</span>
+    <div className={cn('flex-1 flex justify-end', locked && 'pointer-events-none')}>
+      {children}
+    </div>
+  </div>
+);
+
 export const CustomizePanel = ({
   brandColor,
   font,
@@ -69,32 +102,31 @@ export const CustomizePanel = ({
   onToggleLock,
   onRandomize,
 }: CustomizePanelProps) => {
+  const [isRandomizing, setIsRandomizing] = useState(false);
+
+  const handleRandomize = () => {
+    setIsRandomizing(true);
+    onRandomize();
+    // Reset animation after it completes
+    setTimeout(() => setIsRandomizing(false), 600);
+  };
+
   return (
     <div className="p-4 space-y-6">
-      {/* Randomize Section */}
-      <div className="space-y-4">
-        <Button 
-          onClick={onRandomize}
-          variant="outline"
-          className="w-full gap-2"
-          size="lg"
-        >
-          <Dices className="h-4 w-4" />
-          Randomize Unlocked
-        </Button>
-
-        <div className="grid grid-cols-3 gap-2">
-          <LockToggle label="Color" locked={locks.color} onToggle={() => onToggleLock('color')} />
-          <LockToggle label="Font" locked={locks.font} onToggle={() => onToggleLock('font')} />
-          <LockToggle label="Density" locked={locks.density} onToggle={() => onToggleLock('density')} />
-          <LockToggle label="Mood" locked={locks.mood} onToggle={() => onToggleLock('mood')} />
-          <LockToggle label="Buttons" locked={locks.buttons} onToggle={() => onToggleLock('buttons')} />
-          <LockToggle label="Cards" locked={locks.cards} onToggle={() => onToggleLock('cards')} />
-          <LockToggle label="Inputs" locked={locks.inputs} onToggle={() => onToggleLock('inputs')} />
-          <LockToggle label="Nav" locked={locks.navigation} onToggle={() => onToggleLock('navigation')} />
-          <LockToggle label="Modals" locked={locks.modals} onToggle={() => onToggleLock('modals')} />
-        </div>
-      </div>
+      {/* Randomize Button */}
+      <Button 
+        onClick={handleRandomize}
+        variant="outline"
+        className="w-full gap-2"
+        size="lg"
+        disabled={isRandomizing}
+      >
+        <Dices className={cn(
+          'h-4 w-4 transition-transform',
+          isRandomizing && 'animate-[spin_0.6s_ease-in-out]'
+        )} />
+        {isRandomizing ? 'Randomizing...' : 'Randomize Unlocked'}
+      </Button>
 
       {/* Brand Section */}
       <div className="space-y-3">
@@ -103,13 +135,11 @@ export const CustomizePanel = ({
         </h4>
         
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm">Color</span>
+          <SettingRow label="Color" lockKey="color" locked={locks.color} onToggleLock={onToggleLock}>
             <ColorPicker value={brandColor} onChange={onBrandColorChange} />
-          </div>
+          </SettingRow>
           
-          <div className="flex items-center justify-between">
-            <span className="text-sm">Font</span>
+          <SettingRow label="Font" lockKey="font" locked={locks.font} onToggleLock={onToggleLock}>
             <Select value={font} onValueChange={onFontChange}>
               <SelectTrigger className="w-40 h-8">
                 <SelectValue />
@@ -120,7 +150,7 @@ export const CustomizePanel = ({
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </SettingRow>
         </div>
       </div>
 
@@ -131,8 +161,7 @@ export const CustomizePanel = ({
         </h4>
         
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm">Density</span>
+          <SettingRow label="Density" lockKey="density" locked={locks.density} onToggleLock={onToggleLock}>
             <SegmentedControl
               size="sm"
               options={[
@@ -143,10 +172,9 @@ export const CustomizePanel = ({
               value={density}
               onChange={(v) => onDensityChange(v as Density)}
             />
-          </div>
+          </SettingRow>
           
-          <div className="flex items-center justify-between">
-            <span className="text-sm">Mood</span>
+          <SettingRow label="Mood" lockKey="mood" locked={locks.mood} onToggleLock={onToggleLock}>
             <SegmentedControl
               size="sm"
               options={[
@@ -157,7 +185,7 @@ export const CustomizePanel = ({
               value={mood}
               onChange={(v) => onMoodChange(v as Mood)}
             />
-          </div>
+          </SettingRow>
         </div>
       </div>
 
@@ -168,8 +196,7 @@ export const CustomizePanel = ({
         </h4>
         
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm">Buttons</span>
+          <SettingRow label="Buttons" lockKey="buttons" locked={locks.buttons} onToggleLock={onToggleLock}>
             <SegmentedControl
               size="sm"
               options={[
@@ -180,10 +207,9 @@ export const CustomizePanel = ({
               value={buttonStyle}
               onChange={(v) => onButtonStyleChange(v as ButtonStyle)}
             />
-          </div>
+          </SettingRow>
           
-          <div className="flex items-center justify-between">
-            <span className="text-sm">Cards</span>
+          <SettingRow label="Cards" lockKey="cards" locked={locks.cards} onToggleLock={onToggleLock}>
             <SegmentedControl
               size="sm"
               options={[
@@ -194,10 +220,9 @@ export const CustomizePanel = ({
               value={cardStyle}
               onChange={(v) => onCardStyleChange(v as CardStyle)}
             />
-          </div>
+          </SettingRow>
           
-          <div className="flex items-center justify-between">
-            <span className="text-sm">Inputs</span>
+          <SettingRow label="Inputs" lockKey="inputs" locked={locks.inputs} onToggleLock={onToggleLock}>
             <SegmentedControl
               size="sm"
               options={[
@@ -208,10 +233,9 @@ export const CustomizePanel = ({
               value={inputStyle}
               onChange={(v) => onInputStyleChange(v as InputStyle)}
             />
-          </div>
+          </SettingRow>
           
-          <div className="flex items-center justify-between">
-            <span className="text-sm">Navigation</span>
+          <SettingRow label="Navigation" lockKey="navigation" locked={locks.navigation} onToggleLock={onToggleLock}>
             <SegmentedControl
               size="sm"
               options={[
@@ -222,10 +246,9 @@ export const CustomizePanel = ({
               value={navStyle}
               onChange={(v) => onNavStyleChange(v as NavStyle)}
             />
-          </div>
+          </SettingRow>
           
-          <div className="flex items-center justify-between">
-            <span className="text-sm">Modals</span>
+          <SettingRow label="Modals" lockKey="modals" locked={locks.modals} onToggleLock={onToggleLock}>
             <SegmentedControl
               size="sm"
               options={[
@@ -235,7 +258,7 @@ export const CustomizePanel = ({
               value={modalStyle}
               onChange={(v) => onModalStyleChange(v as ModalStyle)}
             />
-          </div>
+          </SettingRow>
         </div>
       </div>
     </div>
