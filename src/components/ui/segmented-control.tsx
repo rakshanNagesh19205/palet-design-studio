@@ -42,8 +42,12 @@ export const SegmentedControl = ({
     <div ref={containerRef} className="relative inline-flex rounded-full bg-muted p-0.5">
       {/* Sliding indicator */}
       <div
-        className="absolute top-0.5 bottom-0.5 rounded-full bg-background shadow-sm transition-all duration-200 ease-out"
-        style={{ left: indicatorStyle.left, width: indicatorStyle.width }}
+        className="absolute top-0.5 bottom-0.5 rounded-full bg-background shadow-sm transition-all duration-300"
+        style={{ 
+          left: indicatorStyle.left, 
+          width: indicatorStyle.width,
+          transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+        }}
       />
       
       {options.map((option) => (
