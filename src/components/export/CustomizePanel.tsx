@@ -128,7 +128,7 @@ export const CustomizePanel = ({
           'h-4 w-4',
           isRandomizing && 'animate-[spin_0.6s_ease-in-out]'
         )} />
-        {isRandomizing ? 'Randomizing...' : 'Randomize Unlocked'}
+        {isRandomizing ? 'Shuffling...' : 'Shuffle'}
       </Button>
 
       {/* Brand Section */}
