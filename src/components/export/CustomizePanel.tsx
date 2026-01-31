@@ -117,12 +117,15 @@ export const CustomizePanel = ({
       <Button 
         onClick={handleRandomize}
         variant="outline"
-        className="w-full gap-2"
+        className={cn(
+          'w-full gap-2',
+          isRandomizing && 'animate-[bounce-subtle_0.5s_ease-out]'
+        )}
         size="lg"
         disabled={isRandomizing}
       >
         <Dices className={cn(
-          'h-4 w-4 transition-transform',
+          'h-4 w-4',
           isRandomizing && 'animate-[spin_0.6s_ease-in-out]'
         )} />
         {isRandomizing ? 'Randomizing...' : 'Randomize Unlocked'}
