@@ -172,6 +172,13 @@ export default {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.8" },
         },
+        "bounce-subtle": {
+          "0%": { transform: "scale(1)" },
+          "25%": { transform: "scale(0.95)" },
+          "50%": { transform: "scale(1.03)" },
+          "75%": { transform: "scale(0.98)" },
+          "100%": { transform: "scale(1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
