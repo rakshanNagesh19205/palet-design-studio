@@ -6,5 +6,4 @@ export { ComponentShowcase } from './ComponentShowcase';
 export { Sidebar } from './Sidebar';
 export { CuratedSetsPanel } from './CuratedSetsPanel';
 export { CustomizePanel } from './CustomizePanel';
-export { DiscoverPanel } from './DiscoverPanel';
 export { ExportFooter } from './ExportFooter';

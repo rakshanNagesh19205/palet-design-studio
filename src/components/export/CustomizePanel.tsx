@@ -1,5 +1,8 @@
+import { Dices } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { ColorPicker } from '@/components/ui/color-picker';
+import { LockToggle } from '@/components/ui/lock-toggle';
 import {
   Select,
   SelectContent,
@@ -15,7 +18,8 @@ import {
   type CardStyle, 
   type InputStyle, 
   type NavStyle, 
-  type ModalStyle 
+  type ModalStyle,
+  type LockStates 
 } from '@/types/export';
 
 interface CustomizePanelProps {
@@ -28,6 +32,7 @@ interface CustomizePanelProps {
   inputStyle: InputStyle;
   navStyle: NavStyle;
   modalStyle: ModalStyle;
+  locks: LockStates;
   onBrandColorChange: (color: string) => void;
   onFontChange: (font: string) => void;
   onDensityChange: (density: Density) => void;
@@ -37,6 +42,8 @@ interface CustomizePanelProps {
   onInputStyleChange: (style: InputStyle) => void;
   onNavStyleChange: (style: NavStyle) => void;
   onModalStyleChange: (style: ModalStyle) => void;
+  onToggleLock: (key: keyof LockStates) => void;
+  onRandomize: () => void;
 }
 
 export const CustomizePanel = ({
@@ -49,6 +56,7 @@ export const CustomizePanel = ({
   inputStyle,
   navStyle,
   modalStyle,
+  locks,
   onBrandColorChange,
   onFontChange,
   onDensityChange,
@@ -58,9 +66,36 @@ export const CustomizePanel = ({
   onInputStyleChange,
   onNavStyleChange,
   onModalStyleChange,
+  onToggleLock,
+  onRandomize,
 }: CustomizePanelProps) => {
   return (
     <div className="p-4 space-y-6">
+      {/* Randomize Section */}
+      <div className="space-y-4">
+        <Button 
+          onClick={onRandomize}
+          variant="outline"
+          className="w-full gap-2"
+          size="lg"
+        >
+          <Dices className="h-4 w-4" />
+          Randomize Unlocked
+        </Button>
+
+        <div className="grid grid-cols-3 gap-2">
+          <LockToggle label="Color" locked={locks.color} onToggle={() => onToggleLock('color')} />
+          <LockToggle label="Font" locked={locks.font} onToggle={() => onToggleLock('font')} />
+          <LockToggle label="Density" locked={locks.density} onToggle={() => onToggleLock('density')} />
+          <LockToggle label="Mood" locked={locks.mood} onToggle={() => onToggleLock('mood')} />
+          <LockToggle label="Buttons" locked={locks.buttons} onToggle={() => onToggleLock('buttons')} />
+          <LockToggle label="Cards" locked={locks.cards} onToggle={() => onToggleLock('cards')} />
+          <LockToggle label="Inputs" locked={locks.inputs} onToggle={() => onToggleLock('inputs')} />
+          <LockToggle label="Nav" locked={locks.navigation} onToggle={() => onToggleLock('navigation')} />
+          <LockToggle label="Modals" locked={locks.modals} onToggle={() => onToggleLock('modals')} />
+        </div>
+      </div>
+
       {/* Brand Section */}
       <div className="space-y-3">
         <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
