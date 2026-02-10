@@ -145,14 +145,15 @@ const Studio = () => {
             <div className="w-7 h-7 bg-primary rounded flex items-center justify-center">
               <span className="text-white font-bold text-xs">P.</span>
             </div>
-            <span className="font-semibold text-slate-900">Palet</span>
+            <div className="flex flex-col">
+              <span className="font-semibold text-slate-900 text-sm leading-tight">Spec Mode</span>
+              <span className="text-xs text-muted-foreground leading-tight">
+                {project.template && <span className="capitalize">{project.template}</span>}
+                {project.template && project.style && ' · '}
+                {project.style && <span className="capitalize">{project.style}</span>}
+              </span>
+            </div>
           </Link>
-          <div className="h-5 w-px bg-border" />
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            {project.template && <span className="capitalize">{project.template}</span>}
-            {project.template && project.style && <span>·</span>}
-            {project.style && <span className="capitalize">{project.style}</span>}
-          </div>
         </div>
         
         {/* Center: Progress */}

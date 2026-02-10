@@ -52,7 +52,7 @@ const TemplateSelection = () => {
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="text-display-sm font-bold">What are you building?</h1>
           <p className="mt-3 text-body-lg text-muted-foreground">
-            Pick a website type to get started
+            Pick a template. Spec Mode tailors everything to your project type.
           </p>
         </div>
         

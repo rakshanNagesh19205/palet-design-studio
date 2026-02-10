@@ -5,19 +5,19 @@ const features = [
   {
     icon: Palette,
     title: 'Visual-First Configuration',
-    description: 'Configure your design system through an intuitive interface with real-time preview. No code required.',
+    description: 'See before you specify. Click, adjust, done.',
     link: '/docs/visual-config',
   },
   {
     icon: Sparkles,
-    title: 'AI-Ready Output',
-    description: 'Export specs in formats optimized for AI prompts. Strictly typed tokens that models understand.',
+    title: 'Works with Any AI',
+    description: 'Claude, GPT, Cursor, Lovable, Replit, v0 — one spec, every platform.',
     link: '/docs/ai-output',
   },
   {
     icon: Layers,
-    title: 'Start with Presets',
-    description: 'Begin with battle-tested style presets based on proven design principles. Customize from there.',
+    title: '81 Starting Points',
+    description: "Templates × styles = combinations. Don't start from scratch.",
     link: '/docs/presets',
   },
 ];

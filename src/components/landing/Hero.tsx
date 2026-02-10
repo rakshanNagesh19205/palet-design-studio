@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Play } from 'lucide-react';
+
 
 export const Hero = () => {
   return (
@@ -30,29 +30,25 @@ export const Hero = () => {
           
           {/* Headline */}
           <h1 className="text-display-lg font-bold tracking-tight text-white md:text-display-xl">
-            Configure visually.
+            Spec Mode
             <br />
-            <span className="text-primary">Generate precisely.</span>
+            <span className="text-primary">for AI coding.</span>
           </h1>
           
           {/* Subtext */}
           <p className="mx-auto mt-6 max-w-2xl text-body-lg text-white/60">
-            The Swiss-style configurator for generating flawless, AI-ready design specifications 
-            without the chaos. Strictly typed. Mathematically aligned.
+            Stop describing. Start configuring.
+            <br />
+            Enter Spec Mode. Exit with a prompt that works everywhere.
           </p>
           
           {/* CTAs */}
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link to="/auth/signup">
               <Button size="lg" className="gap-2 px-8">
-                Start Configuring
-                <ArrowRight className="h-4 w-4" />
+                Enter Spec Mode →
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="gap-2 border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white">
-              <Play className="h-4 w-4" />
-              See How It Works
-            </Button>
           </div>
         </div>
         

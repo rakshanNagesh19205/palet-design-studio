@@ -61,7 +61,7 @@ const StyleSelection = () => {
             <span>/</span>
             <span className="text-primary font-medium">Style</span>
             <span>/</span>
-            <span>Export</span>
+            <span>Configure</span>
           </div>
         )}
         

@@ -4,16 +4,16 @@ import { DesignCanvas } from '@/components/landing/DesignCanvas';
 import { WebsiteTypeScreen, StyleSelectionScreen, StudioScreen, ExportScreen } from '@/components/landing/StageScreens';
 
 const stages = [
-  { step: 1, name: 'Website Type', headline: 'Start with your purpose', description: "Tell us what you're building — SaaS, portfolio, agency, e-commerce, or something else. We'll tailor the entire configuration experience to your specific needs.", detail: 'Each type comes with smart defaults optimized for that category.' },
-  { step: 2, name: 'Style Selection', headline: 'Define your visual intent', description: 'Choose a starting aesthetic that matches your vision. Swiss International, Neo-Brutalist, Soft Minimal, or Tech Dark — each preset is a complete design system foundation.', detail: "Each preset is fully customizable in the Studio — make it yours." },
-  { step: 3, name: 'Studio', headline: 'Configure every detail', description: 'Fine-tune colors, typography, spacing, shadows, and components. See your changes reflected in real-time on actual UI components — not abstract swatches.', detail: "The preview shows what your website could look like when AI generates it." },
-  { step: 4, name: 'Export', headline: 'Generate your specification', description: 'Export a precise, AI-ready specification. Paste it into Claude, GPT, Cursor, or any AI tool — get identical results every single time.', detail: 'Also export as JSON, CSS variables, or design tokens.' }
+  { step: 1, name: 'Template', headline: 'Pick your starting point', description: "SaaS, portfolio, agency, e-commerce — choose what you're building. Spec Mode tailors everything from here.", detail: 'Each template includes smart defaults optimized for that category.' },
+  { step: 2, name: 'Style', headline: 'Choose your aesthetic', description: "Swiss Precision, Soft Modern, Bold Contrast — pick a visual direction. Your spec inherits the right tokens automatically.", detail: '9 curated styles. 81 template × style combinations.' },
+  { step: 3, name: 'Configure', headline: 'Fine-tune your system', description: "Colors, typography, spacing, components, motion — configure every detail visually. The preview updates live as you work.", detail: 'Every change you make becomes part of your exported spec.' },
+  { step: 4, name: 'Export', headline: 'Copy. Paste. Ship.', description: "Your spec is ready. Copy it, paste it into Claude, GPT, Cursor, Lovable, Replit — any AI tool. Get exactly what you configured.", detail: 'One spec. Every platform. Consistent results.' }
 ];
 
 const features = [
-  { icon: '◇', title: 'Visual-First Configuration', description: 'No JSON editing. Click, adjust, done.' },
-  { icon: '⬡', title: 'AI-Ready Output', description: 'Specifications structured so AI understands exactly what you mean.' },
-  { icon: '▣', title: 'Start with Presets', description: "Don't start from scratch. Pick a style, tweak what matters." }
+  { icon: '◇', title: 'Visual-First Configuration', description: 'See before you specify. Click, adjust, done.' },
+  { icon: '⬡', title: 'Works with Any AI', description: 'Claude, GPT, Cursor, Lovable, Replit, v0 — one spec, every platform.' },
+  { icon: '▣', title: '81 Starting Points', description: "Templates × styles = combinations. Don't start from scratch." }
 ];
 
 const waitlistFeatures = ['More styles with AI', 'More templates with AI', 'AI-powered Studio', 'Generate from inspiration', 'Connections', 'Code export'];
@@ -108,25 +108,22 @@ const Landing = () => {
           {/* Left: Text Content */}
           <div className="flex-1 max-w-[520px]">
             <h1 className="text-[60px] font-bold text-white leading-[1.05] tracking-tight mb-2">
-              Design confidence
+              Spec Mode
             </h1>
             <h1 className="text-[60px] font-bold text-primary leading-[1.05] tracking-tight mb-7">
-              in minutes.
+              for AI coding.
             </h1>
 
             <div className="mb-9">
-              <p className="text-muted-foreground text-lg">Skip the iteration loop.</p>
-              <p className="text-muted-foreground text-lg">Stop describing. Start deciding.</p>
+              <p className="text-muted-foreground text-lg">Stop describing. Start configuring.</p>
+              <p className="text-muted-foreground text-lg">Enter Spec Mode. Exit with a prompt that works everywhere.</p>
             </div>
 
             <Link 
               to="/auth/signup"
               className="inline-flex items-center gap-2 px-7 py-3.5 bg-primary text-white rounded-lg text-[15px] font-semibold hover:bg-primary/90 transition-colors"
             >
-              <span className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center text-[8px]">
-                ▶
-              </span>
-              See How It Works
+              Enter Spec Mode →
             </Link>
           </div>
 
@@ -283,9 +280,9 @@ const Landing = () => {
           <div className="absolute top-0 left-0 w-32 h-32 bg-primary/15 rounded-full blur-[40px]" />
           <div className="absolute bottom-0 right-0 w-40 h-40 bg-primary/15 rounded-full blur-[40px]" />
           
-          <h2 className="text-white text-[32px] font-bold mb-3 relative z-10">Curious? Good.</h2>
-          <p className="text-muted-foreground text-lg mb-2 relative z-10">Your specs. Your vision. Your output.</p>
-          <p className="text-gray-600 text-sm mb-8 relative z-10">Configure your first spec in minutes.</p>
+          <h2 className="text-white text-[32px] font-bold mb-3 relative z-10">Ready to enter Spec Mode?</h2>
+          <p className="text-muted-foreground text-lg mb-2 relative z-10">Configure once. Generate everywhere.</p>
+          <p className="text-gray-600 text-sm mb-8 relative z-10">Your first spec takes 3 minutes.</p>
           
           <Link 
             to="/auth/signup"
@@ -296,7 +293,7 @@ const Landing = () => {
               boxShadow: !showHeaderCTA ? '0 0 30px rgba(239, 68, 68, 0.4)' : 'none'
             }}
           >
-            Get Started
+            Enter Spec Mode →
           </Link>
         </div>
       </section>

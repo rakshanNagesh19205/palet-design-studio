@@ -238,8 +238,8 @@ const Auth = () => {
                 </h1>
                 <p className="text-muted-foreground text-sm">
                   {isSignUp 
-                    ? 'Start building precise design specifications.' 
-                    : 'Continue where you left off.'}
+                    ? 'Create an account to save your specs' 
+                    : 'Sign in to enter Spec Mode'}
                 </p>
               </div>
               
