@@ -10,7 +10,7 @@ interface ProductHeaderProps {
 const steps = [
   { step: 1, label: 'Template', path: '/create/template' },
   { step: 2, label: 'Style', path: '/create/style' },
-  { step: 3, label: 'Studio', path: '/studio' },
+  { step: 3, label: 'Configure', path: '/studio' },
 ];
 
 export const ProductHeader = ({ currentStep = 1, showBreadcrumb = true }: ProductHeaderProps) => {

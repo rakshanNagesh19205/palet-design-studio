@@ -65,7 +65,7 @@ const StyleSelectionScreen: FC = () => (
 const StudioScreen: FC = () => (
   <div className="h-full flex">
     <div className="w-[40%] bg-[#f9fafb] border-r border-gray-200 p-3 flex flex-col">
-      <div className="text-[10px] font-semibold text-muted-foreground tracking-wider mb-2.5">CONFIGURATION</div>
+      <div className="text-[10px] font-semibold text-muted-foreground tracking-wider mb-2.5">SPEC CONFIGURATION</div>
       {['Colors', 'Typography', 'Spacing', 'Shadows'].map((item, i) => (
         <div 
           key={item} 

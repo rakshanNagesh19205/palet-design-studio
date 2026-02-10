@@ -14,11 +14,11 @@ export const CTA = () => {
       <div className="container relative">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-display-md font-bold text-white md:text-display-lg">
-            Curious? Good.
+            Ready to enter Spec Mode?
           </h2>
           
           <p className="mt-4 text-body-lg text-white/60">
-            Your specs. Your vision. Your output.
+            Configure once. Generate everywhere.
           </p>
           
           <Link to="/auth/signup" className="mt-8 inline-block">
@@ -26,8 +26,7 @@ export const CTA = () => {
               size="lg" 
               className="gap-2 px-8 shadow-lg shadow-primary/25"
             >
-              Get Started
-              <ArrowRight className="h-4 w-4" />
+              Enter Spec Mode →
             </Button>
           </Link>
         </div>

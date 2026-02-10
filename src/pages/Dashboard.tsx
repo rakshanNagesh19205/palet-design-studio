@@ -155,7 +155,7 @@ const Dashboard = () => {
               onClick={() => setCreateDialogOpen(true)}
             >
               <Plus className="h-4 w-4" />
-              New Project
+              New Spec
             </Button>
             
             {/* User Menu */}
@@ -199,9 +199,9 @@ const Dashboard = () => {
       {/* Main content */}
       <main className="max-w-[1280px] mx-auto px-6 py-10">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Your Projects</h1>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Your Specs</h1>
           <p className="mt-2 text-muted-foreground">
-            Saved design specifications ready to export.
+            Saved Spec Mode sessions. Pick up where you left off, or start fresh.
           </p>
         </div>
         
@@ -210,7 +210,7 @@ const Dashboard = () => {
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search projects..."
+              placeholder="Search specs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 bg-white border-gray-200"
@@ -260,17 +260,17 @@ const Dashboard = () => {
               <FolderOpen className="h-8 w-8 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-semibold text-slate-900">
-              {searchQuery ? 'No matching projects' : 'No projects yet'}
+              {searchQuery ? 'No matching specs' : 'No specs yet'}
             </h3>
             <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto">
               {searchQuery
                 ? 'Try adjusting your search query.'
-                : 'Create your first design system to get started.'}
+                : 'Enter Spec Mode to configure your first design system.'}
             </p>
             {!searchQuery && (
               <Button className="mt-6 gap-2" onClick={() => setCreateDialogOpen(true)}>
                 <Plus className="h-4 w-4" />
-                Create your first project
+                Enter Spec Mode →
               </Button>
             )}
           </div>
@@ -364,16 +364,16 @@ const Dashboard = () => {
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Create new project</DialogTitle>
+            <DialogTitle>Start a new Spec Mode session</DialogTitle>
             <DialogDescription>
-              Give your design system a name to get started.
+              Give your spec a name to get started.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <Label htmlFor="projectName">Project name</Label>
+            <Label htmlFor="projectName">Spec name</Label>
             <Input
               id="projectName"
-              placeholder="My Design System"
+              placeholder="My SaaS Landing Spec"
               value={newProjectName}
               onChange={(e) => setNewProjectName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleCreateProject()}
@@ -385,7 +385,7 @@ const Dashboard = () => {
               Cancel
             </Button>
             <Button onClick={handleCreateProject} disabled={createProject.isPending}>
-              {createProject.isPending ? 'Creating...' : 'Create Project'}
+              {createProject.isPending ? 'Creating...' : 'Start Spec Mode →'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -395,10 +395,10 @@ const Dashboard = () => {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete project?</AlertDialogTitle>
+            <AlertDialogTitle>Delete spec?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete "{projectToDelete?.name}" and all its versions.
-              This action cannot be undone.
+              This will permanently delete "{projectToDelete?.name}" and all its saved versions.
+              This can't be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
