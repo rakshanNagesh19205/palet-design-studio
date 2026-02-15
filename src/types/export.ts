@@ -64,6 +64,14 @@ export interface CuratedSet {
     secondary: string;
     accent: string;
   };
+  font: string;
+  density: Density;
+  mood: Mood;
+  buttonStyle: ButtonStyle;
+  cardStyle: CardStyle;
+  inputStyle: InputStyle;
+  navStyle: NavStyle;
+  modalStyle: ModalStyle;
 }
 
 // Adjective and noun pools for random domain generation

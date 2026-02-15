@@ -37,9 +37,17 @@ export const Sidebar = ({
           <AccordionContent className="p-0">
             <CuratedSetsPanel
               selectedSet={state.selectedSet}
-              onSelectSet={(id, colors) => {
-                onStateChange('selectedSet', id);
-                onStateChange('brandColor', colors.primary);
+              onSelectSet={(set) => {
+                onStateChange('selectedSet', set.id);
+                onStateChange('brandColor', set.colors.primary);
+                onStateChange('font', set.font);
+                onStateChange('density', set.density);
+                onStateChange('mood', set.mood);
+                onStateChange('buttonStyle', set.buttonStyle);
+                onStateChange('cardStyle', set.cardStyle);
+                onStateChange('inputStyle', set.inputStyle);
+                onStateChange('navStyle', set.navStyle);
+                onStateChange('modalStyle', set.modalStyle);
               }}
             />
           </AccordionContent>
