@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import { PreviewControls } from './PreviewControls';
 import { ComponentShowcase } from './ComponentShowcase';
+import { PagePreview } from './PagePreview';
 import type { PageTab, DeviceSize, ExportPageState } from '@/types/export';
 
 interface PreviewPaneProps {
@@ -91,30 +92,12 @@ export const PreviewPane = ({
             {activeTab === 'components' ? (
               <ComponentShowcase state={state} darkMode={darkMode} />
             ) : (
-              <div className={cn(
-                'flex flex-col items-center justify-center min-h-[400px] p-8 text-center',
-                darkMode ? 'text-white' : 'text-foreground'
-              )}>
-                <div className={cn(
-                  'text-lg font-semibold mb-4',
-                  darkMode ? 'text-white' : 'text-foreground'
-                )}>
-                  [{PAGE_LABELS[activeTab]} Preview]
-                </div>
-                <div className={cn(
-                  'text-sm space-y-1',
-                  darkMode ? 'text-slate-400' : 'text-muted-foreground'
-                )}>
-                  <p>Template: {formatName(template)}</p>
-                  <p>Style: {formatName(style)}</p>
-                </div>
-                <div className={cn(
-                  'mt-6 text-xs max-w-xs',
-                  darkMode ? 'text-slate-500' : 'text-muted-foreground/70'
-                )}>
-                  This preview will show the actual page design with your customizations applied.
-                </div>
-              </div>
+              <PagePreview
+                template={template}
+                page={activeTab as Exclude<PageTab, 'components'>}
+                state={state}
+                darkMode={darkMode}
+              />
             )}
           </div>
         </div>
