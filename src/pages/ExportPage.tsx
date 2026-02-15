@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ExportHeader, PageTabs, PreviewPane, Sidebar, ExportFooter } from '@/components/export';
+import { ExportModal } from '@/components/export/ExportModal';
 import type { 
   ExportPageState, 
   PageTab, 
@@ -22,7 +23,7 @@ import {
   DARK_DEFAULT_STYLES 
 } from '@/types/export';
 import { generateMarkdownSpec } from '@/lib/generateSpec';
-import { useToast } from '@/hooks/use-toast';
+
 
 // Generate a random project name
 const generateProjectName = (): string => {
@@ -104,29 +105,13 @@ const ExportPage = () => {
     });
   };
 
-  const { toast } = useToast();
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [generatedSpec, setGeneratedSpec] = useState('');
 
-  const handleExport = async () => {
+  const handleExport = () => {
     const spec = generateMarkdownSpec(state);
-
-    try {
-      await navigator.clipboard.writeText(spec);
-      toast({
-        title: "Copied to clipboard!",
-        description: "Paste this into Claude, GPT, Cursor, or any AI tool.",
-      });
-    } catch (err) {
-      const textArea = document.createElement('textarea');
-      textArea.value = spec;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      toast({
-        title: "Copied to clipboard!",
-        description: "Paste this into Claude, GPT, Cursor, or any AI tool.",
-      });
-    }
+    setGeneratedSpec(spec);
+    setShowExportModal(true);
   };
 
   return (
@@ -173,6 +158,14 @@ const ExportPage = () => {
 
       {/* Footer */}
       <ExportFooter onExport={handleExport} />
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        spec={generatedSpec}
+        projectName={state.projectName}
+      />
     </div>
   );
 };
