@@ -21,6 +21,8 @@ import {
   FONT_OPTIONS,
   DARK_DEFAULT_STYLES 
 } from '@/types/export';
+import { generateMarkdownSpec } from '@/lib/generateSpec';
+import { useToast } from '@/hooks/use-toast';
 
 // Generate a random project name
 const generateProjectName = (): string => {
@@ -102,9 +104,29 @@ const ExportPage = () => {
     });
   };
 
-  const handleExport = () => {
-    // TODO: Implement export functionality
-    console.log('Exporting spec:', state);
+  const { toast } = useToast();
+
+  const handleExport = async () => {
+    const spec = generateMarkdownSpec(state);
+
+    try {
+      await navigator.clipboard.writeText(spec);
+      toast({
+        title: "Copied to clipboard!",
+        description: "Paste this into Claude, GPT, Cursor, or any AI tool.",
+      });
+    } catch (err) {
+      const textArea = document.createElement('textarea');
+      textArea.value = spec;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      toast({
+        title: "Copied to clipboard!",
+        description: "Paste this into Claude, GPT, Cursor, or any AI tool.",
+      });
+    }
   };
 
   return (
