@@ -3,7 +3,7 @@ import type { CuratedSet } from '@/types/export';
 
 interface CuratedSetsPanelProps {
   selectedSet: string | null;
-  onSelectSet: (id: string) => void;
+  onSelectSet: (id: string, colors: CuratedSet['colors']) => void;
 }
 
 const CURATED_SETS: CuratedSet[] = [
@@ -47,7 +47,7 @@ export const CuratedSetsPanel = ({ selectedSet, onSelectSet }: CuratedSetsPanelP
           key={set.id}
           set={set}
           selected={selectedSet === set.id}
-          onClick={() => onSelectSet(set.id)}
+          onClick={() => onSelectSet(set.id, set.colors)}
         />
       ))}
     </div>
