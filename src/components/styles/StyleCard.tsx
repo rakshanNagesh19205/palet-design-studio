@@ -7,7 +7,9 @@ interface StyleCardProps {
   onClick?: () => void;
 }
 
-const StylePreview = ({ preview }: { preview: Style['preview'] }) => {
+type PreviewType = 'swiss' | 'brutalist' | 'minimal' | 'tech' | 'corporate' | 'editorial' | 'playful' | 'elegant' | 'vibrant';
+
+const StylePreview = ({ preview }: { preview: PreviewType }) => {
   switch (preview) {
     case 'swiss':
       return (
@@ -112,7 +114,7 @@ export const StyleCard = ({ style, isSelected, onClick }: StyleCardProps) => {
     >
       {/* Preview area */}
       <div className="relative h-[160px] overflow-hidden">
-        <StylePreview preview={style.preview} />
+        <StylePreview preview={style.id as PreviewType} />
       </div>
       
       {/* Content */}
